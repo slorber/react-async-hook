@@ -24,6 +24,19 @@ const StarwarsHero = ({id}) => {
 };
 ```
 
+```
+const fetchStarwarsHero = id => fetch(`https://swapi.co/api/people/${id}/`).then(result => {
+  if ( result.status !== 200 ) {
+    throw new Error("bad status = " + result.status);
+  }
+  return result.json();
+});
+```
+
+# Warning
+
+I'm not sure yet if this library makes any sense. Suspense is probably a better approach that solves the same usecases. 
+
 # Why
 
 There already a ton of way to fetch data into components. 
@@ -40,11 +53,6 @@ or
  
 `npm install react-async-hook --save`
 
-
-# TODO
-
-- document API
-- make it compatible with suspense
 
 # License
 
