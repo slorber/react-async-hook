@@ -42,8 +42,9 @@ const useAsyncState = options => {
 
 
 const useIsMounted = () => {
-  const ref = useRef(true);
+  const ref = useRef(false);
   useEffect(() => {
+    ref.current = true;
     return () => ref.current = false;
   }, []);
   return () => ref.current;
