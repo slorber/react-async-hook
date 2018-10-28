@@ -42,11 +42,11 @@ const useAsyncState = options => {
 
 
 const useIsMounted = () => {
-  let mounted = true;
+  const ref = useRef(true);
   useEffect(() => {
-    return () => mounted = false;
+    return () => ref.current = false;
   }, []);
-  return mounted;
+  return () => ref.current;
 };
 
 
@@ -71,7 +71,7 @@ export const useAsync = (asyncFunction, params = [], options) => {
 
   // We only want to handle the promise result/error
   // if it is the last operation and the comp is still mounted
-  const shouldHandlePromise = p => isMounted && CurrentPromise.is(p);
+  const shouldHandlePromise = p => isMounted() && CurrentPromise.is(p);
 
   const executeAsyncOperation = () => {
     const promise = asyncFunction(params);
