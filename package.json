@@ -1,10 +1,23 @@
 {
   "name": "react-async-hook",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Async hook",
   "author": "Sébastien Lorber",
   "license": "MIT",
   "repository": "http://github.com/slorber/react-async-hook",
+  "keywords": [
+    "react-async-hook",
+    "async",
+    "fetch",
+    "axios",
+    "promise",
+    "react",
+    "react-native",
+    "reactjs",
+    "reactnative",
+    "hooks",
+    "hook"
+  ],
   "engines": {
     "node": ">=8",
     "npm": ">=5"
