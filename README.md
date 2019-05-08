@@ -1,6 +1,10 @@
 # react-async-hook
 
-The easiest way to load data in your React components:
+- Simplest way to get async result in your React component
+- Typescript support
+- Refetch on params change
+- Handle concurrency issues if params change too fast
+- Flexible, works with any async function, not just api calls
 
 ```jsx
 const StarwarsHero = ({ id }) => {
@@ -20,26 +24,22 @@ const StarwarsHero = ({ id }) => {
 };
 ```
 
+And the typesafe async function:
+
 ```
-const fetchStarwarsHero = id => fetch(`https://swapi.co/api/people/${id}/`).then(result => {
-  if ( result.status !== 200 ) {
-    throw new Error("bad status = " + result.status);
+type StarwarsHero = {
+  id: string;
+  name: string;
+};
+
+const fetchStarwarsHero = async (id: string): Promise<StarwarsHero> => {
+  const result = await fetch(`https://swapi.co/api/people/${id}/`);
+  if (result.status !== 200) {
+    throw new Error('bad status = ' + result.status);
   }
-  return result.json();
-});
+  return result.json()
+};
 ```
-
-# Warning
-
-I'm not sure yet if this library makes any sense. Suspense is probably a better approach that solves the same usecases.
-
-# Why
-
-There already a ton of way to fetch data into components.
-
-This library aims to be the simplest to use and be less verbose than when using alternatives based on hoc/render-props like [react-data-fetching](https://github.com/CharlesMangwa/react-data-fetching) or [react-refetch](https://github.com/heroku/react-refetch).
-
-This library is not meant to be used everywhere, but in many cases, fetching data in an ad-hoc way is a simple solution that is good enough for the usecase. You can keep using Redux/Apollo or other libraries for more advanced usecases.
 
 # Install
 
@@ -47,6 +47,10 @@ This library is not meant to be used everywhere, but in many cases, fetching dat
 or
 
 `npm install react-async-hook --save`
+
+# Warning
+
+This library does not yet support React Suspense, but hopefully it will as soon as it can.
 
 # License
 

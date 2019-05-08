@@ -16,8 +16,7 @@ const fetchStarwarsHero = async (id: string): Promise<StarwarsHero> => {
   if (result.status !== 200) {
     throw new Error('bad status = ' + result.status);
   }
-  const json = await result.json();
-  return json as StarwarsHero;
+  return result.json();
 };
 
 const HeroContainer = ({ children }) => (
