@@ -26,7 +26,7 @@ const StarwarsHero = ({ id }) => {
 
 And the typesafe async function:
 
-```
+```tsx
 type StarwarsHero = {
   id: string;
   name: string;
