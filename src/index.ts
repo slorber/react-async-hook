@@ -93,19 +93,17 @@ const useCurrentPromise = <R>(): UseCurrentPromiseReturn<R> => {
   };
 };
 
-type ArgumentsType<T> = T extends (...args: infer A) => any ? A : never;
-
-export type UseAsyncResult<R> = AsyncState<R> & {
+export type UseAsyncReturn<R> = AsyncState<R> & {
   execute: () => void;
 };
-export const useAsync = <R, Fun extends (...args: any[]) => Promise<R>>(
-  asyncFunction: Fun,
-  params: ArgumentsType<Fun>,
+export const useAsync = <R, Args extends any[]>(
+  asyncFunction: (...args: Args) => Promise<R>,
+  params: Args,
   options?: UseAsyncOptions<R>
-): UseAsyncResult<R> => {
-  const normalizedOptions = normalizeOptions(options);
+): UseAsyncReturn<R> => {
+  const normalizedOptions = normalizeOptions<R>(options);
 
-  const AsyncState = useAsyncState(normalizedOptions);
+  const AsyncState = useAsyncState<R>(normalizedOptions);
 
   const isMounted = useIsMounted();
 

@@ -2,7 +2,7 @@ import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { useAsync } from '../src';
+import { useAsync } from 'react-async-hook';
 
 import { useState } from 'react';
 
@@ -18,6 +18,41 @@ const fetchStarwarsHero = async (id: string): Promise<StarwarsHero> => {
   }
   const json = await result.json();
   return json as StarwarsHero;
+};
+
+const HeroContainer = ({ children }) => (
+  <div
+    style={{
+      margin: 10,
+      padding: 10,
+      border: 'solid',
+      borderRadius: 10,
+      width: 200,
+      height: 80,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    {children}
+  </div>
+);
+
+const StarwarsHero = ({ id }) => {
+  const asyncHero = useAsync(fetchStarwarsHero, [id]);
+  return (
+    <div>
+      {asyncHero.loading && <div>Loading</div>}
+      {asyncHero.error && <div>Error: {asyncHero.error.message}</div>}
+      {asyncHero.result && (
+        <div>
+          <div>Success!</div>
+          <div>Id: {id}</div>
+          <div>Name: {asyncHero.result.name}</div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const buttonStyle = {
@@ -66,38 +101,3 @@ const App = () => {
   );
 };
 ReactDOM.render(<App />, document.getElementById('root'));
-
-const HeroContainer = ({ children }) => (
-  <div
-    style={{
-      margin: 10,
-      padding: 10,
-      border: 'solid',
-      borderRadius: 10,
-      width: 200,
-      height: 80,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}
-  >
-    {children}
-  </div>
-);
-
-const StarwarsHero = ({ id }) => {
-  const asyncHero = useAsync(fetchStarwarsHero, [id]);
-  return (
-    <div>
-      {asyncHero.loading && <div>Loading</div>}
-      {asyncHero.error && <div>Error: {asyncHero.error.message}</div>}
-      {asyncHero.result && (
-        <div>
-          <div>Success!</div>
-          <div>Id: {id}</div>
-          <div>Name: {asyncHero.result.name}</div>
-        </div>
-      )}
-    </div>
-  );
-};
