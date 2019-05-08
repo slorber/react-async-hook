@@ -106,7 +106,6 @@ export const useAsync = <R, Args extends any[]>(
   const AsyncState = useAsyncState<R>(normalizedOptions);
 
   const isMounted = useIsMounted();
-
   const CurrentPromise = useCurrentPromise();
 
   // We only want to handle the promise result/error
@@ -140,4 +139,44 @@ export const useAsync = <R, Args extends any[]>(
     ...AsyncState.value,
     execute: executeAsyncOperation,
   };
+};
+
+type AddArg<H, T extends any[]> = ((h: H, ...t: T) => void) extends ((
+  ...r: infer R
+) => void)
+  ? R
+  : never;
+
+export const useAsyncAbortable = <R, Args extends any[]>(
+  asyncFunction: (...args: AddArg<AbortSignal, Args>) => Promise<R>,
+  params: Args,
+  options?: UseAsyncOptions<R>
+): UseAsyncReturn<R> => {
+  const abortControllerRef = useRef<AbortController>();
+
+  // Wrap the original async function and enhance it with abortion login
+  const asyncFunctionWrapper: (...args: Args) => Promise<R> = async (
+    ...p: Args
+  ) => {
+    // Cancel previous async call
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    // Create/store new abort controller for next async call
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    try {
+      // @ts-ignore // TODO how to type this?
+      return await asyncFunction(abortController.signal, ...p);
+    } finally {
+      // Unset abortController ref if response is already there,
+      // as it's not needed anymore to try to abort it (would it be no-op?)
+      if (abortControllerRef.current === abortController) {
+        abortControllerRef.current = undefined;
+      }
+    }
+  };
+
+  return useAsync(asyncFunctionWrapper, params, options);
 };

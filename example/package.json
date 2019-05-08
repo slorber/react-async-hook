@@ -7,10 +7,11 @@
     "start": "parcel index.html"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.4.4",
     "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-async-hook": "^2.0.0",
-    "react-app-polyfill": "^1.0.0"
+    "react-app-polyfill": "^1.0.0",
+    "react-async-hook": "^next",
+    "react-dom": "^16.8.6"
   },
   "devDependencies": {
     "@types/react": "^16.8.15",
