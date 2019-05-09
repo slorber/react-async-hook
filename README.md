@@ -44,6 +44,8 @@ const fetchStarwarsHero = async (id: string): Promise<StarwarsHero> => {
 };
 ```
 
+Examples are running on [this page](https://react-async-hook.netlify.com/) and [implemented here](https://github.com/slorber/react-async-hook/blob/master/example/index.tsx) (in Typescript)
+
 # Install
 
 `yarn add react-async-hook`

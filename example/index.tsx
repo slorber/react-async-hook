@@ -186,6 +186,29 @@ const App = () => (
       minHeight: '100vh',
     }}
   >
+    <div>
+      <h1>
+        Example page for{' '}
+        <a href="https://github.com/slorber/react-async-hook">
+          react-async-hook
+        </a>{' '}
+        (
+        <a
+          href="https://github.com/slorber/react-async-hook/blob/master/example/index.tsx"
+          target="_blank"
+        >
+          source
+        </a>
+        )
+      </h1>
+      <h2>
+        by{' '}
+        <a href="https://twitter.com/sebastienlorber" target="_blank">
+          @sebastienlorber
+        </a>
+      </h2>
+    </div>
+
     <StarwarsExample
       title={'Starwars hero example (basic)'}
       exampleType="basic"
