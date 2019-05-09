@@ -5,7 +5,7 @@ import '@babel/polyfill';
 
 import { useAsync, useAsyncAbortable, UseAsyncReturn } from 'react-async-hook';
 
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import useConstant from 'use-constant';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
 
@@ -29,6 +29,23 @@ const fetchStarwarsHero = async (
   return result.json();
 };
 
+const searchStarwarsHero = async (
+  text: string,
+  abortSignal?: AbortSignal
+): Promise<StarwarsHero[]> => {
+  const result = await fetch(
+    `https://swapi.co/api/people/?search=${encodeURIComponent(text)}`,
+    {
+      signal: abortSignal,
+    }
+  );
+  if (result.status !== 200) {
+    throw new Error('bad status = ' + result.status);
+  }
+  const json = await result.json();
+  return json.results;
+};
+
 const HeroContainer = ({ children }) => (
   <div
     style={{
@@ -44,6 +61,40 @@ const HeroContainer = ({ children }) => (
     }}
   >
     {children}
+  </div>
+);
+
+const Example = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) => (
+  <div
+    style={{
+      margin: 20,
+      padding: 20,
+      border: 'solid',
+    }}
+  >
+    <h1
+      style={{
+        marginBottom: 10,
+        paddingBottom: 10,
+        borderBottom: 'solid thin red',
+      }}
+    >
+      {title}
+    </h1>
+    <div
+      style={{
+        marginBottom: 10,
+        paddingBottom: 10,
+      }}
+    >
+      {children}
+    </div>
   </div>
 );
 
@@ -117,15 +168,7 @@ const StarwarsHeroLoader = ({
   }
 };
 
-const buttonStyle = {
-  border: 'solid',
-  cursor: 'pointer',
-  borderRadius: 50,
-  padding: 10,
-  margin: 10,
-};
-
-const StarwarsExample = ({
+const StarwarsSliderExample = ({
   title,
   exampleType,
 }: {
@@ -135,23 +178,16 @@ const StarwarsExample = ({
   const [heroId, setHeroId] = useState(1);
   const next = () => setHeroId(heroId + 1);
   const previous = () => setHeroId(heroId - 1);
+
+  const buttonStyle = {
+    border: 'solid',
+    cursor: 'pointer',
+    borderRadius: 50,
+    padding: 10,
+    margin: 10,
+  };
   return (
-    <div
-      style={{
-        margin: 20,
-        padding: 20,
-        border: 'solid',
-      }}
-    >
-      <h1
-        style={{
-          marginBottom: 10,
-          paddingBottom: 10,
-          border: 'solid',
-        }}
-      >
-        {title}
-      </h1>
+    <Example title={title}>
       <div style={{ display: 'flex' }}>
         <div style={buttonStyle} onClick={previous}>
           Previous
@@ -172,7 +208,73 @@ const StarwarsExample = ({
           <StarwarsHeroLoader id={`${heroId + 2}`} exampleType={exampleType} />
         </HeroContainer>
       </div>
-    </div>
+    </Example>
+  );
+};
+
+const useSearchStarwarsHero = () => {
+  // Handle the input text state
+  const [inputText, setInputText] = useState('');
+
+  // Debounce the original search async function
+  const debouncedSearchStarwarsHero = useConstant(() =>
+    AwesomeDebouncePromise(searchStarwarsHero, 300)
+  );
+
+  const search = useAsyncAbortable(
+    async (abortSignal, text) => {
+      // If the input is empty, return nothing immediately (without the debouncing delay!)
+      if (text.length === 0) {
+        return [];
+      }
+      // Else we use the debounced api
+      else {
+        return debouncedSearchStarwarsHero(text, abortSignal);
+      }
+    },
+    // Ensure a new request is made everytime the text changes (even if it's debounced)
+    [inputText]
+  );
+
+  // Return everything needed for the hook consumer
+  return {
+    inputText,
+    setInputText,
+    search,
+  };
+};
+
+const SearchStarwarsHeroExample = () => {
+  const { inputText, setInputText, search } = useSearchStarwarsHero();
+  return (
+    <Example title={'Search starwars hero'}>
+      <input
+        value={inputText}
+        onChange={e => setInputText(e.target.value)}
+        placeholder="Search starwars hero"
+        style={{
+          marginTop: 20,
+          padding: 10,
+          border: 'solid thin',
+          borderRadius: 5,
+          width: 300,
+        }}
+      />
+      <div style={{ marginTop: 20 }}>
+        {search.loading && <div>...</div>}
+        {search.error && <div>Error: {search.error.message}</div>}
+        {search.result && (
+          <div>
+            <div>Results: {search.result.length}</div>
+            <ul>
+              {search.result.map(hero => (
+                <li key={hero.name}>{hero.name}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </Example>
   );
 };
 
@@ -209,20 +311,21 @@ const App = () => (
       </h2>
     </div>
 
-    <StarwarsExample
-      title={'Starwars hero example (basic)'}
+    <SearchStarwarsHeroExample />
+    <StarwarsSliderExample
+      title={'Starwars hero slider example (basic)'}
       exampleType="basic"
     />
-    <StarwarsExample
-      title={'Starwars hero example (debounced)'}
+    <StarwarsSliderExample
+      title={'Starwars hero slider example (debounced)'}
       exampleType="debounced"
     />
-    <StarwarsExample
-      title={'Starwars hero example (abortable)'}
+    <StarwarsSliderExample
+      title={'Starwars hero slider example (abortable)'}
       exampleType="abortable"
     />
-    <StarwarsExample
-      title={'Starwars hero example (merge)'}
+    <StarwarsSliderExample
+      title={'Starwars hero slider example (merge)'}
       exampleType="merge"
     />
   </div>

@@ -84,7 +84,90 @@ const StarwarsHero = ({ id }) => {
 };
 ```
 
-#### How to use request cancellation
+#### How can I implement a debounced search input / autocomplete?
+
+This is one of the most common usecase for fetching data + debouncing in a component, and can be implemented easily by composing different libraries.
+All this logic can easily be extracted into a single hook that you can reuse. Here is an example:
+
+```tsx
+const searchStarwarsHero = async (
+  text: string,
+  abortSignal?: AbortSignal
+): Promise<StarwarsHero[]> => {
+  const result = await fetch(
+    `https://swapi.co/api/people/?search=${encodeURIComponent(text)}`,
+    {
+      signal: abortSignal,
+    }
+  );
+  if (result.status !== 200) {
+    throw new Error('bad status = ' + result.status);
+  }
+  const json = await result.json();
+  return json.results;
+};
+
+const useSearchStarwarsHero = () => {
+  // Handle the input text state
+  const [inputText, setInputText] = useState('');
+
+  // Debounce the original search async function
+  const debouncedSearchStarwarsHero = useConstant(() =>
+    AwesomeDebouncePromise(searchStarwarsHero, 300)
+  );
+
+  const search = useAsyncAbortable(
+    async (abortSignal, text) => {
+      // If the input is empty, return nothing immediately (without the debouncing delay!)
+      if (text.length === 0) {
+        return [];
+      }
+      // Else we use the debounced api
+      else {
+        return debouncedSearchStarwarsHero(text, abortSignal);
+      }
+    },
+    // Ensure a new request is made everytime the text changes (even if it's debounced)
+    [inputText]
+  );
+
+  // Return everything needed for the hook consumer
+  return {
+    inputText,
+    setInputText,
+    search,
+  };
+};
+```
+
+And then you can use your hook easily:
+
+```tsx
+const SearchStarwarsHeroExample = () => {
+  const { inputText, setInputText, search } = useSearchStarwarsHero();
+  return (
+    <div>
+      <input value={inputText} onChange={e => setInputText(e.target.value)} />
+      <div>
+        {search.loading && <div>...</div>}
+        {search.error && <div>Error: {search.error.message}</div>}
+        {search.result && (
+          <div>
+            <div>Results: {search.result.length}</div>
+            <ul>
+              {search.result.map(hero => (
+                <li key={hero.name}>{hero.name}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+```
+
+#### How to use request cancellation?
 
 You can use the `useAsyncAbortable` alternative. The async function provided will receive `(abortSignal, ...params)` .
 
@@ -110,7 +193,7 @@ const StarwarsHero = ({ id }) => {
 };
 ```
 
-#### How can I keep previous results available while a new request is pending
+#### How can I keep previous results available while a new request is pending?
 
 It can be annoying to have the previous async call result be "erased" everytime a new call is triggered (default strategy).
 If you are implementing some kind of search/autocomplete dropdown, it means a spinner will appear everytime the user types a new char, giving a bad UX effect.
@@ -126,7 +209,7 @@ const StarwarsHero = ({ id }) => {
 };
 ```
 
-#### How to refresh / refetch the data
+#### How to refresh / refetch the data?
 
 If your params are not changing, yet you need to refresh the data, you can call `execute()`
 
@@ -138,7 +221,7 @@ const StarwarsHero = ({ id }) => {
 };
 ```
 
-#### How to support retry
+#### How to support retry?
 
 Use a lib that simply adds retry feature to async/promises directly. Doesn't exist? Build it.
 
