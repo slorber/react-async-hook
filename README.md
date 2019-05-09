@@ -65,7 +65,9 @@ This library does not yet support React Suspense, but hopefully it will as soon 
 #### How can I debounce the request
 
 It is possible to debounce a promise.
-I recommend my package [awesome-debounce-promise](https://github.com/slorber/awesome-debounce-promise) instead, because it handles concucrrency issues and have React in mind (particularly building a debounced search input/autocomplete)
+
+I recommend [awesome-debounce-promise](https://github.com/slorber/awesome-debounce-promise), as it handles nicely potential concurrency issues and have React in mind (particularly the common usecase of a debounced search input/autocomplete)
+
 As debounced functions are stateful, we have to "store" the debounced function inside a component. We'll use for that [use-constant](https://github.com/Andarist/use-constant) (backed by `useRef`).
 
 ```tsx
@@ -75,8 +77,9 @@ const StarwarsHero = ({ id }) => {
     AwesomeDebouncePromise(fetchStarwarsHero, 1000)
   );
 
-  // Simply use it
+  // Simply use it with useAsync
   const asyncHero = useAsync(debouncedFetchStarwarsHero, [id]);
+
   return <div>...</div>;
 };
 ```
@@ -84,6 +87,7 @@ const StarwarsHero = ({ id }) => {
 #### How to use request cancellation
 
 You can use the `useAsyncAbortable` alternative. The async function provided will receive `(abortSignal, ...params)` .
+
 The library will take care of triggering the abort signal whenever a new async call is made so that only the last request is not cancelled.
 It is your responsability to wire the abort signal appropriately.
 
@@ -122,7 +126,9 @@ const StarwarsHero = ({ id }) => {
 };
 ```
 
-#### How to refresh the data
+#### How to refresh / refetch the data
+
+If your params are not changing, yet you need to refresh the data, you can call `execute()`
 
 ```tsx
 const StarwarsHero = ({ id }) => {
