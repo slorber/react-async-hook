@@ -1,4 +1,7 @@
-# react-async-hook
+# React-async-hook
+
+[![NPM](https://img.shields.io/npm/dm/react-async-hook.svg)](https://www.npmjs.com/package/react-async-hook)
+[![Build Status](https://travis-ci.com/slorber/react-async-hook.svg?branch=master)](https://travis-ci.com/slorber/react-async-hook)
 
 - Simplest way to get async result in your React component
 - Very good, native, typescript support
