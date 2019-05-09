@@ -83,18 +83,21 @@ const useIsMounted = (): (() => boolean) => {
 
 type UseCurrentPromiseReturn<R> = {
   set: (promise: Promise<R>) => void;
+  get: () => Promise<R> | null;
   is: (promise: Promise<R>) => boolean;
 };
 const useCurrentPromise = <R>(): UseCurrentPromiseReturn<R> => {
   const ref = useRef<Promise<R> | null>(null);
   return {
     set: promise => (ref.current = promise),
+    get: () => ref.current,
     is: promise => ref.current === promise,
   };
 };
 
 export type UseAsyncReturn<R> = AsyncState<R> & {
-  execute: () => void;
+  execute: () => Promise<R>;
+  currentPromise: Promise<R> | null;
 };
 export const useAsync = <R, Args extends any[]>(
   asyncFunction: (...args: Args) => Promise<R>,
@@ -106,14 +109,14 @@ export const useAsync = <R, Args extends any[]>(
   const AsyncState = useAsyncState<R>(normalizedOptions);
 
   const isMounted = useIsMounted();
-  const CurrentPromise = useCurrentPromise();
+  const CurrentPromise = useCurrentPromise<R>();
 
   // We only want to handle the promise result/error
   // if it is the last operation and the comp is still mounted
   const shouldHandlePromise = (p: Promise<R>) =>
     isMounted() && CurrentPromise.is(p);
 
-  const executeAsyncOperation = () => {
+  const executeAsyncOperation = (): Promise<R> => {
     const promise = asyncFunction(...params);
     CurrentPromise.set(promise);
     AsyncState.setLoading();
@@ -129,6 +132,7 @@ export const useAsync = <R, Args extends any[]>(
         }
       }
     );
+    return promise;
   };
 
   useEffect(() => {
@@ -138,6 +142,7 @@ export const useAsync = <R, Args extends any[]>(
   return {
     ...AsyncState.value,
     execute: executeAsyncOperation,
+    currentPromise: CurrentPromise.get(),
   };
 };
 
