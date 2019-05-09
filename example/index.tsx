@@ -5,7 +5,11 @@ import '@babel/polyfill';
 
 import { useAsync, useAsyncAbortable, UseAsyncReturn } from 'react-async-hook';
 
-import { ReactNode, useState } from 'react';
+import { useState } from 'react';
+import useConstant from 'use-constant';
+import AwesomeDebouncePromise from 'awesome-debounce-promise';
+
+type ExampleType = 'basic' | 'abortable' | 'debounced' | 'merge';
 
 type StarwarsHero = {
   id: string;
@@ -65,10 +69,19 @@ const StarwarsHeroRender = ({
   );
 };
 
-const StarwarsHeroLoaderNonAbortable = ({ id }: { id: string }) => {
+const StarwarsHeroLoaderBasic = ({ id }: { id: string }) => {
   const asyncHero = useAsync(fetchStarwarsHero, [id]);
   return <StarwarsHeroRender id={id} asyncHero={asyncHero} />;
 };
+
+const StarwarsHeroLoaderDebounced = ({ id }: { id: string }) => {
+  const debouncedFetchStarwarsHero = useConstant(() =>
+    AwesomeDebouncePromise(fetchStarwarsHero, 1000)
+  );
+  const asyncHero = useAsync(debouncedFetchStarwarsHero, [id]);
+  return <StarwarsHeroRender id={id} asyncHero={asyncHero} />;
+};
+
 const StarwarsHeroLoaderAbortable = ({ id }: { id: string }) => {
   const asyncHero = useAsyncAbortable(
     async (abortSignal, id) => fetchStarwarsHero(id, abortSignal),
@@ -76,18 +89,32 @@ const StarwarsHeroLoaderAbortable = ({ id }: { id: string }) => {
   );
   return <StarwarsHeroRender id={id} asyncHero={asyncHero} />;
 };
+
+const StarwarsHeroLoaderMerge = ({ id }: { id: string }) => {
+  const asyncHero = useAsync(fetchStarwarsHero, [id], {
+    setLoading: state => ({ ...state, loading: true }),
+  });
+  return <StarwarsHeroRender id={id} asyncHero={asyncHero} />;
+};
+
 const StarwarsHeroLoader = ({
   id,
-  abortable,
+  exampleType,
 }: {
   id: string;
-  abortable: boolean;
+  exampleType: ExampleType;
 }) => {
-  return abortable ? (
-    <StarwarsHeroLoaderAbortable id={id} />
-  ) : (
-    <StarwarsHeroLoaderNonAbortable id={id} />
-  );
+  if (exampleType === 'basic') {
+    return <StarwarsHeroLoaderBasic id={id} />;
+  } else if (exampleType === 'debounced') {
+    return <StarwarsHeroLoaderDebounced id={id} />;
+  } else if (exampleType === 'abortable') {
+    return <StarwarsHeroLoaderAbortable id={id} />;
+  } else if (exampleType === 'merge') {
+    return <StarwarsHeroLoaderMerge id={id} />;
+  } else {
+    throw new Error('unknown exampleType=' + exampleType);
+  }
 };
 
 const buttonStyle = {
@@ -98,10 +125,13 @@ const buttonStyle = {
   margin: 10,
 };
 
-const StarwarsExample = (
-  { title, abortable },
-  { title: string, abortable: boolean }
-) => {
+const StarwarsExample = ({
+  title,
+  exampleType,
+}: {
+  title: string;
+  exampleType: ExampleType;
+}) => {
   const [heroId, setHeroId] = useState(1);
   const next = () => setHeroId(heroId + 1);
   const previous = () => setHeroId(heroId - 1);
@@ -133,13 +163,13 @@ const StarwarsExample = (
 
       <div style={{ display: 'flex', marginTop: 50 }}>
         <HeroContainer>
-          <StarwarsHeroLoader id={`${heroId}`} abortable={abortable} />
+          <StarwarsHeroLoader id={`${heroId}`} exampleType={exampleType} />
         </HeroContainer>
         <HeroContainer>
-          <StarwarsHeroLoader id={`${heroId + 1}`} abortable={abortable} />
+          <StarwarsHeroLoader id={`${heroId + 1}`} exampleType={exampleType} />
         </HeroContainer>
         <HeroContainer>
-          <StarwarsHeroLoader id={`${heroId + 2}`} abortable={abortable} />
+          <StarwarsHeroLoader id={`${heroId + 2}`} exampleType={exampleType} />
         </HeroContainer>
       </div>
     </div>
@@ -156,11 +186,21 @@ const App = () => (
       minHeight: '100vh',
     }}
   >
-    <StarwarsExample title={'Starwars hero example'} abortable={false} />
-
+    <StarwarsExample
+      title={'Starwars hero example (basic)'}
+      exampleType="basic"
+    />
+    <StarwarsExample
+      title={'Starwars hero example (debounced)'}
+      exampleType="debounced"
+    />
     <StarwarsExample
       title={'Starwars hero example (abortable)'}
-      abortable={true}
+      exampleType="abortable"
+    />
+    <StarwarsExample
+      title={'Starwars hero example (merge)'}
+      exampleType="merge"
     />
   </div>
 );

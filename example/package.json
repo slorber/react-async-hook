@@ -8,10 +8,12 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
+    "awesome-debounce-promise": "^2.1.0",
     "react": "^16.8.6",
     "react-app-polyfill": "^1.0.0",
     "react-async-hook": "^next",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.8.6",
+    "use-constant": "^1.0.0"
   },
   "devDependencies": {
     "@types/react": "^16.8.15",
