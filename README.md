@@ -176,7 +176,7 @@ It is your responsability to wire the abort signal appropriately.
 
 ```tsx
 const StarwarsHero = ({ id }) => {
-  const asyncHero = useAsync(
+  const asyncHero = useAsyncAbortable(
     async (abortSignal, id) => {
       const result = await fetch(`https://swapi.co/api/people/${id}/`, {
         signal: abortSignal,
