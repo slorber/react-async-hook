@@ -68,7 +68,7 @@ type UseAsyncStateResult<R> = {
 const useAsyncState = <R extends {}>(
   options: UseAsyncOptionsNormalized<R>
 ): UseAsyncStateResult<R> => {
-  const [value, setValue] = useState<AsyncState<R>>(InitialAsyncState);
+  const [value, setValue] = useState<AsyncState<R>>(options.initialState);
   return {
     value,
     set: setValue,
