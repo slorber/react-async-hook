@@ -60,6 +60,7 @@ const normalizeOptions = <R>(
 
 type UseAsyncStateResult<R> = {
   value: AsyncState<R>;
+  set: (value: AsyncState<R>) => void;
   setLoading: () => void;
   setResult: (r: R) => void;
   setError: (e: Error) => void;
@@ -70,6 +71,7 @@ const useAsyncState = <R extends {}>(
   const [value, setValue] = useState<AsyncState<R>>(InitialAsyncState);
   return {
     value,
+    set: setValue,
     setLoading: () => setValue(options.setLoading(value)),
     setResult: result => setValue(options.setResult(result, value)),
     setError: error => setValue(options.setError(error, value)),
@@ -102,6 +104,7 @@ const useCurrentPromise = <R>(): UseCurrentPromiseReturn<R> => {
 };
 
 export type UseAsyncReturn<R> = AsyncState<R> & {
+  set: (value: AsyncState<R>) => void;
   execute: () => Promise<R>;
   currentPromise: Promise<R> | null;
 };
@@ -154,6 +157,7 @@ export const useAsync = <R, Args extends any[]>(
 
   return {
     ...AsyncState.value,
+    set: AsyncState.set,
     execute: executeAsyncOperation,
     currentPromise: CurrentPromise.get(),
   };
