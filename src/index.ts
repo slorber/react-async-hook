@@ -10,6 +10,9 @@ type SetResult<R> = (result: R, asyncState: AsyncState<R>) => AsyncState<R>;
 type SetError<R> = (error: Error, asyncState: AsyncState<R>) => AsyncState<R>;
 
 export type UseAsyncOptionsNormalized<R> = {
+  initialState: AsyncState<R>;
+  executeOnMount: boolean;
+  executeOnUpdate: boolean;
   setLoading: SetLoading<R>;
   setResult: SetResult<R>;
   setError: SetError<R>;
@@ -40,6 +43,9 @@ const defaultSetError: SetError<any> = (error, _asyncState) => ({
 });
 
 const DefaultOptions = {
+  initialState: InitialAsyncState,
+  executeOnMount: true,
+  executeOnUpdate: true,
   setLoading: defaultSetLoading,
   setResult: defaultSetResult,
   setError: defaultSetError,
@@ -135,8 +141,15 @@ export const useAsync = <R, Args extends any[]>(
     return promise;
   };
 
+  // Keep this outside useEffect, because inside isMounted()
+  // will be true as the component is already mounted when it's run
+  const isMounting = !isMounted();
   useEffect(() => {
-    executeAsyncOperation();
+    if (isMounting) {
+      normalizedOptions.executeOnMount && executeAsyncOperation();
+    } else {
+      normalizedOptions.executeOnUpdate && executeAsyncOperation();
+    }
   }, params);
 
   return {
