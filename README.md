@@ -3,15 +3,17 @@
 [![NPM](https://img.shields.io/npm/dm/react-async-hook.svg)](https://www.npmjs.com/package/react-async-hook)
 [![Build Status](https://travis-ci.com/slorber/react-async-hook.svg?branch=master)](https://travis-ci.com/slorber/react-async-hook)
 
-- Simplest way to get async result in your React component
-- Very good, native, Typescript support
+- Simplest way to get async result / feedback in your React component
+- Works with any React platform (ReactNative, Expo...)
 - Refetch on params change
+- Handle async callbacks (mutations)
 - Handle concurrency issues if params change too fast
 - Flexible, works with any async function, not just api calls
 - Support for cancellation (AbortController)
 - Possibility to trigger manual refetches / updates
 - Options to customize state updates
-- Handle async callbacks (mutations)
+- Very good, native, Typescript support
+- Small and no dependency
 
 ## Usecase: loading async data into a component
 
