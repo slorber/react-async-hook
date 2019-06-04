@@ -70,7 +70,9 @@ type UseAsyncStateResult<R> = {
 const useAsyncState = <R extends {}>(
   options: UseAsyncOptionsNormalized<R>
 ): UseAsyncStateResult<R> => {
-  const [value, setValue] = useState<AsyncState<R>>(options.initialState);
+  const [value, setValue] = useState<AsyncState<R>>(() =>
+    options.initialState()
+  );
   return {
     value,
     set: setValue,
@@ -105,7 +107,12 @@ const useCurrentPromise = <R>(): UseCurrentPromiseReturn<R> => {
   };
 };
 
-export type UseAsyncReturn<R, Args extends any[]> = AsyncState<R> & {
+export type UseAsyncReturn<
+  R,
+  // never because most of the time we don't need manual execution feature (mostly useful for useAsyncCallback)
+  // yet being able to declare the type easily
+  Args extends any[] = never
+> = AsyncState<R> & {
   set: (value: AsyncState<R>) => void;
   execute: (...args: Args) => Promise<R>;
   currentPromise: Promise<R> | null;
@@ -179,7 +186,7 @@ export const useAsync = <R, Args extends any[]>(
   asyncFunction: (...args: Args) => Promise<R>,
   params: Args,
   options?: UseAsyncOptions<R>
-): UseAsyncReturn<R, Args> => useAsync(asyncFunction, params, options);
+): UseAsyncReturn<R, Args> => useAsyncInternal(asyncFunction, params, options);
 
 type AddArg<H, T extends any[]> = ((h: H, ...t: T) => void) extends ((
   ...r: infer R

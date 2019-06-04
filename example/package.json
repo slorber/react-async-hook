@@ -12,7 +12,7 @@
     "awesome-debounce-promise": "^2.1.0",
     "react": "^16.8.6",
     "react-app-polyfill": "^1.0.0",
-    "react-async-hook": "^next",
+    "react-async-hook": "latest",
     "react-dom": "^16.8.6",
     "use-constant": "^1.0.0"
   },
