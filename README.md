@@ -4,15 +4,25 @@
 [![Build Status](https://travis-ci.com/slorber/react-async-hook.svg?branch=master)](https://travis-ci.com/slorber/react-async-hook)
 
 - Simplest way to get async result in your React component
-- Very good, native, typescript support
+- Very good, native, Typescript support
 - Refetch on params change
 - Handle concurrency issues if params change too fast
 - Flexible, works with any async function, not just api calls
 - Support for cancellation (AbortController)
 - Possibility to trigger manual refetches / updates
 - Options to customize state updates
+- Handle async callbacks (mutations)
+
+## Usecase: loading async data into a component
+
+The ability to inject remote/async data into a React component is a very common React need. Later we might support Suspense as well.
 
 ```tsx
+import { useAsync } from 'react-async-hook';
+
+const fetchStarwarsHero = async id =>
+  (await fetch(`https://swapi.co/api/people/${id}/`)).json();
+
 const StarwarsHero = ({ id }) => {
   const asyncHero = useAsync(fetchStarwarsHero, [id]);
   return (
@@ -30,22 +40,36 @@ const StarwarsHero = ({ id }) => {
 };
 ```
 
-And the typesafe async function could be:
+## Usecase: injecting async feedback into buttons
+
+If you have a Todo app, you might want to show some feedback into the "create todo" button while the creation is pending, and prevent duplicate todo creations by disabling the button.
+
+Just wire `useAsyncCallback` to your `onClick` prop in your primitive `AppButton` component. The library will show a feedback only if the button onClick callback is async, otherwise it won't do anything.
 
 ```tsx
-type StarwarsHero = {
-  id: string;
-  name: string;
+import { useAsyncCallback } from 'react-async-hook';
+
+const AppButton = ({ onClick, children }) => {
+  const asyncOnClick = useAsyncCallback(onClick);
+  return (
+    <button onClick={asyncOnClick.execute} disabled={asyncOnClick.loading}>
+      {asyncOnClick.loading ? '...' : children}
+    </button>
+  );
 };
 
-const fetchStarwarsHero = async (id: string): Promise<StarwarsHero> => {
-  const result = await fetch(`https://swapi.co/api/people/${id}/`);
-  if (result.status !== 200) {
-    throw new Error('bad status = ' + result.status);
-  }
-  return result.json();
-};
+const CreateTodoButton = () => (
+  <AppButton
+    onClick={async () => {
+      await createTodoAPI('new todo text');
+    }}
+  >
+    Create Todo
+  </AppButton>
+);
 ```
+
+# Examples
 
 Examples are running on [this page](https://react-async-hook.netlify.com/) and [implemented here](https://github.com/slorber/react-async-hook/blob/master/example/index.tsx) (in Typescript)
 

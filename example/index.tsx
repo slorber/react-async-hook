@@ -3,11 +3,29 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import '@babel/polyfill';
 
-import { useAsync, useAsyncAbortable, UseAsyncReturn } from 'react-async-hook';
+import {
+  useAsync,
+  useAsyncAbortable,
+  useAsyncCallback,
+  UseAsyncReturn,
+} from 'react-async-hook';
 
 import { ReactNode, useState } from 'react';
 import useConstant from 'use-constant';
 import AwesomeDebouncePromise from 'awesome-debounce-promise';
+
+const AppButton = ({ onClick, children }) => {
+  const asyncOnClick = useAsyncCallback(onClick);
+  return (
+    <button
+      onClick={asyncOnClick.execute}
+      disabled={asyncOnClick.loading}
+      style={{ width: 200, height: 50 }}
+    >
+      {asyncOnClick.loading ? '...' : children}
+    </button>
+  );
+};
 
 type ExampleType = 'basic' | 'abortable' | 'debounced' | 'merge';
 
@@ -103,7 +121,7 @@ const StarwarsHeroRender = ({
   asyncHero,
 }: {
   id: string;
-  asyncHero: UseAsyncReturn<StarwarsHero>;
+  asyncHero: UseAsyncReturn<StarwarsHero, never>;
 }) => {
   return (
     <div>
@@ -328,6 +346,16 @@ const App = () => (
       title={'Starwars hero slider example (merge)'}
       exampleType="merge"
     />
+
+    <Example title={'useAsyncCallback example'}>
+      <AppButton
+        onClick={async () => {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }}
+      >
+        Do something async
+      </AppButton>
+    </Example>
   </div>
 );
 

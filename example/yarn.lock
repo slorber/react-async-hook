@@ -4223,10 +4223,10 @@ react-app-polyfill@^1.0.0:
     regenerator-runtime "0.13.2"
     whatwg-fetch "3.0.0"
 
-react-async-hook@^next:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/react-async-hook/-/react-async-hook-2.0.2.tgz#5f4f3aa25531025256b77b285706cdf102623dc1"
-  integrity sha512-y4V9p1upTj2s8EWNS87VDooELE+myVdh8VgQy06DZGatuiO05+mcHZHYpjhuig1XPSiW+LcRdZ9d3XiKvG3G/g==
+react-async-hook@3:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-async-hook/-/react-async-hook-3.0.0.tgz#acd0363e484e3abfc07df2ca1919cad12edbf1f0"
+  integrity sha512-n0PARuX6wO/WwDXuwo6e9Wm5P/OtIRqeyu0YWiKusRScr55N3qh4R3Js3pdxmegliH/LddUZjoCI83hsD3BSuw==
 
 react-dom@^16.8.6:
   version "16.8.6"

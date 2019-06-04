@@ -9,8 +9,10 @@ type SetLoading<R> = (asyncState: AsyncState<R>) => AsyncState<R>;
 type SetResult<R> = (result: R, asyncState: AsyncState<R>) => AsyncState<R>;
 type SetError<R> = (error: Error, asyncState: AsyncState<R>) => AsyncState<R>;
 
+type MaybePromise<T> = Promise<T> | T;
+
 export type UseAsyncOptionsNormalized<R> = {
-  initialState: AsyncState<R>;
+  initialState: () => AsyncState<R>;
   executeOnMount: boolean;
   executeOnUpdate: boolean;
   setLoading: SetLoading<R>;
@@ -43,7 +45,7 @@ const defaultSetError: SetError<any> = (error, _asyncState) => ({
 });
 
 const DefaultOptions = {
-  initialState: InitialAsyncState,
+  initialState: () => InitialAsyncState,
   executeOnMount: true,
   executeOnUpdate: true,
   setLoading: defaultSetLoading,
@@ -103,16 +105,19 @@ const useCurrentPromise = <R>(): UseCurrentPromiseReturn<R> => {
   };
 };
 
-export type UseAsyncReturn<R> = AsyncState<R> & {
+export type UseAsyncReturn<R, Args extends any[]> = AsyncState<R> & {
   set: (value: AsyncState<R>) => void;
-  execute: () => Promise<R>;
+  execute: (...args: Args) => Promise<R>;
   currentPromise: Promise<R> | null;
 };
-export const useAsync = <R, Args extends any[]>(
-  asyncFunction: (...args: Args) => Promise<R>,
+
+// Relaxed interface which accept both async and sync functions
+// Accepting sync function is convenient for useAsyncCallback
+const useAsyncInternal = <R, Args extends any[]>(
+  asyncFunction: (...args: Args) => MaybePromise<R>,
   params: Args,
   options?: UseAsyncOptions<R>
-): UseAsyncReturn<R> => {
+): UseAsyncReturn<R, Args> => {
   const normalizedOptions = normalizeOptions<R>(options);
 
   const AsyncState = useAsyncState<R>(normalizedOptions);
@@ -125,23 +130,30 @@ export const useAsync = <R, Args extends any[]>(
   const shouldHandlePromise = (p: Promise<R>) =>
     isMounted() && CurrentPromise.is(p);
 
-  const executeAsyncOperation = (): Promise<R> => {
-    const promise = asyncFunction(...params);
-    CurrentPromise.set(promise);
-    AsyncState.setLoading();
-    promise.then(
-      result => {
-        if (shouldHandlePromise(promise)) {
-          AsyncState.setResult(result);
+  const executeAsyncOperation = (...args: Args): Promise<R> => {
+    const promise: MaybePromise<R> = asyncFunction(...args);
+    if (promise instanceof Promise) {
+      CurrentPromise.set(promise);
+      AsyncState.setLoading();
+      promise.then(
+        result => {
+          if (shouldHandlePromise(promise)) {
+            AsyncState.setResult(result);
+          }
+        },
+        error => {
+          if (shouldHandlePromise(promise)) {
+            AsyncState.setError(error);
+          }
         }
-      },
-      error => {
-        if (shouldHandlePromise(promise)) {
-          AsyncState.setError(error);
-        }
-      }
-    );
-    return promise;
+      );
+      return promise;
+    } else {
+      // We allow passing a non-async function (mostly for useAsyncCallback conveniency)
+      const syncResult: R = promise;
+      AsyncState.setResult(syncResult);
+      return Promise.resolve<R>(syncResult);
+    }
   };
 
   // Keep this outside useEffect, because inside isMounted()
@@ -149,9 +161,9 @@ export const useAsync = <R, Args extends any[]>(
   const isMounting = !isMounted();
   useEffect(() => {
     if (isMounting) {
-      normalizedOptions.executeOnMount && executeAsyncOperation();
+      normalizedOptions.executeOnMount && executeAsyncOperation(...params);
     } else {
-      normalizedOptions.executeOnUpdate && executeAsyncOperation();
+      normalizedOptions.executeOnUpdate && executeAsyncOperation(...params);
     }
   }, params);
 
@@ -163,6 +175,12 @@ export const useAsync = <R, Args extends any[]>(
   };
 };
 
+export const useAsync = <R, Args extends any[]>(
+  asyncFunction: (...args: Args) => Promise<R>,
+  params: Args,
+  options?: UseAsyncOptions<R>
+): UseAsyncReturn<R, Args> => useAsync(asyncFunction, params, options);
+
 type AddArg<H, T extends any[]> = ((h: H, ...t: T) => void) extends ((
   ...r: infer R
 ) => void)
@@ -173,7 +191,7 @@ export const useAsyncAbortable = <R, Args extends any[]>(
   asyncFunction: (...args: AddArg<AbortSignal, Args>) => Promise<R>,
   params: Args,
   options?: UseAsyncOptions<R>
-): UseAsyncReturn<R> => {
+): UseAsyncReturn<R, Args> => {
   const abortControllerRef = useRef<AbortController>();
 
   // Wrap the original async function and enhance it with abortion login
@@ -201,4 +219,24 @@ export const useAsyncAbortable = <R, Args extends any[]>(
   };
 
   return useAsync(asyncFunctionWrapper, params, options);
+};
+
+export const useAsyncCallback = <R, Args extends any[]>(
+  asyncFunction: (...args: Args) => MaybePromise<R>
+): UseAsyncReturn<R, Args> => {
+  return useAsyncInternal(
+    asyncFunction,
+    // Hacky but in such case we don't need the params,
+    // because async function is only executed manually
+    [] as any,
+    {
+      executeOnMount: false,
+      executeOnUpdate: false,
+      initialState: () => ({
+        loading: false,
+        result: undefined,
+        error: undefined,
+      }),
+    }
+  );
 };
