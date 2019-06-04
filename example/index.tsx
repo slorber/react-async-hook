@@ -330,6 +330,17 @@ const App = () => (
     </div>
 
     <SearchStarwarsHeroExample />
+
+    <Example title={'useAsyncCallback example'}>
+      <AppButton
+        onClick={async () => {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }}
+      >
+        Do something async
+      </AppButton>
+    </Example>
+
     <StarwarsSliderExample
       title={'Starwars hero slider example (basic)'}
       exampleType="basic"
@@ -346,16 +357,6 @@ const App = () => (
       title={'Starwars hero slider example (merge)'}
       exampleType="merge"
     />
-
-    <Example title={'useAsyncCallback example'}>
-      <AppButton
-        onClick={async () => {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }}
-      >
-        Do something async
-      </AppButton>
-    </Example>
   </div>
 );
 
