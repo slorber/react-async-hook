@@ -121,7 +121,7 @@ export type UseAsyncReturn<
 // Relaxed interface which accept both async and sync functions
 // Accepting sync function is convenient for useAsyncCallback
 const useAsyncInternal = <R, Args extends any[]>(
-  asyncFunction: (...args: Args) => MaybePromise<R>,
+  asyncFunction: ((...args: Args) => MaybePromise<R>) | (() => MaybePromise<R>),
   params: Args,
   options?: UseAsyncOptions<R>
 ): UseAsyncReturn<R, Args> => {
@@ -183,7 +183,7 @@ const useAsyncInternal = <R, Args extends any[]>(
 };
 
 export const useAsync = <R, Args extends any[]>(
-  asyncFunction: (...args: Args) => Promise<R>,
+  asyncFunction: ((...args: Args) => Promise<R>) | (() => Promise<R>),
   params: Args,
   options?: UseAsyncOptions<R>
 ): UseAsyncReturn<R, Args> => useAsyncInternal(asyncFunction, params, options);
@@ -195,7 +195,9 @@ type AddArg<H, T extends any[]> = ((h: H, ...t: T) => void) extends ((
   : never;
 
 export const useAsyncAbortable = <R, Args extends any[]>(
-  asyncFunction: (...args: AddArg<AbortSignal, Args>) => Promise<R>,
+  asyncFunction:
+    | ((...args: AddArg<AbortSignal, Args>) => Promise<R>)
+    | ((abortSignal: AbortSignal) => MaybePromise<R>),
   params: Args,
   options?: UseAsyncOptions<R>
 ): UseAsyncReturn<R, Args> => {
@@ -229,7 +231,7 @@ export const useAsyncAbortable = <R, Args extends any[]>(
 };
 
 export const useAsyncCallback = <R, Args extends any[]>(
-  asyncFunction: (...args: Args) => MaybePromise<R>
+  asyncFunction: ((...args: Args) => MaybePromise<R>) | (() => MaybePromise<R>)
 ): UseAsyncReturn<R, Args> => {
   return useAsyncInternal(
     asyncFunction,
