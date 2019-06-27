@@ -136,6 +136,7 @@ export type UseAsyncReturn<
   Args extends any[] = never
 > = AsyncState<R> & {
   set: (value: AsyncState<R>) => void;
+  reset: () => void;
   execute: (...args: Args) => Promise<R>;
   currentPromise: Promise<R> | null;
 };
@@ -199,6 +200,7 @@ const useAsyncInternal = <R, Args extends any[]>(
   return {
     ...AsyncState.value,
     set: AsyncState.set,
+    reset: AsyncState.reset,
     execute: executeAsyncOperation,
     currentPromise: CurrentPromise.get(),
   };
