@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 export type AsyncState<R> = {
   loading: boolean;
@@ -63,6 +63,7 @@ const normalizeOptions = <R>(
 type UseAsyncStateResult<R> = {
   value: AsyncState<R>;
   set: (value: AsyncState<R>) => void;
+  reset: () => void;
   setLoading: () => void;
   setResult: (r: R) => void;
   setError: (e: Error) => void;
@@ -73,12 +74,33 @@ const useAsyncState = <R extends {}>(
   const [value, setValue] = useState<AsyncState<R>>(() =>
     options.initialState()
   );
+
+  const reset = useCallback(() => setValue(options.initialState()), [
+    setValue,
+    options,
+  ]);
+
+  const setLoading = useCallback(() => setValue(options.setLoading(value)), [
+    value,
+    setValue,
+  ]);
+  const setResult = useCallback(
+    (result: R) => setValue(options.setResult(result, value)),
+    [value, setValue]
+  );
+
+  const setError = useCallback(
+    (error: Error) => setValue(options.setError(error, value)),
+    [value, setValue]
+  );
+
   return {
     value,
     set: setValue,
-    setLoading: () => setValue(options.setLoading(value)),
-    setResult: result => setValue(options.setResult(result, value)),
-    setError: error => setValue(options.setError(error, value)),
+    reset,
+    setLoading,
+    setResult,
+    setError,
   };
 };
 
