@@ -1,6 +1,6 @@
 {
   "name": "react-async-hook",
-  "version": "3.3.1",
+  "version": "3.4.0",
   "description": "Async hook",
   "author": "Sébastien Lorber",
   "license": "MIT",
@@ -31,8 +31,7 @@
     "npm": ">=5"
   },
   "main": "dist/index.js",
-  "umd:main": "dist/react-async-hook.umd.production.js",
-  "module": "dist/react-async-hook.es.production.js",
+  "module": "react-async-hook.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
@@ -65,7 +64,7 @@
     "pretty-quick": "^1.10.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "tsdx": "^0.5.7",
+    "tsdx": "^0.7.2",
     "tslib": "^1.9.3",
     "typescript": "^3.4.5"
   }
