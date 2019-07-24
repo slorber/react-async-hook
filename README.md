@@ -268,7 +268,24 @@ const asyncSomething = useAsync(() => fetchSomething(state.a, state.b), [state.a
 Note you can also use this to "build" a more complex payload. Using `useMemo` does not guarantee the memoized value will not be cleared, so it's better to do:
 
 ```tsx
-const asyncSomething = useAsync(() => fetchSomething(buildFetchPayload(state)), [state.a, state.b, state.whateverNeedToTriggerRefetch]);
+const asyncSomething = useAsync(async () => {
+  const payload = buildFetchPayload(state);
+  const result = await fetchSomething(payload);
+  return result;
+}), [state.a, state.b, state.whateverNeedToTriggerRefetch]);
+```
+
+You can also use `useAsyncCallback` to decide yourself manually when a fetch should be done:
+
+```tsx
+const asyncSomething = useAsyncCallback(async () => {
+  const payload = buildFetchPayload(state);
+  const result = await fetchSomething(payload);
+  return result;
+}));
+
+// Call this manually whenever you need:
+asyncSomething.execute();
 ```
 
 
