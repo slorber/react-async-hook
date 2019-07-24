@@ -247,6 +247,31 @@ const StarwarsHero = ({ id }) => {
 };
 ```
 
+#### How to have better control when things get fetched/refetched?
+
+Sometimes you end up in situations where the function tries to fetch too often, or not often, because your dependency array changes and you don't know how to handle this.
+
+In this case you'd better use a closure with no arg define in the dependency array which params should trigger a refetch:
+
+Here, both `state.a` and `state.b` will trigger a refetch, despite b is not passed to the async fetch function.
+
+```tsx
+const asyncSomething = useAsync(() => fetchSomething(state.a), [state.a,state.b]);
+```
+
+Here, only `state.a` will trigger a refetch, despite b being passed to the async fetch function.
+
+```tsx
+const asyncSomething = useAsync(() => fetchSomething(state.a, state.b), [state.a]);
+```
+
+Note you can also use this to "build" a more complex payload. Using `useMemo` does not guarantee the memoized value will not be cleared, so it's better to do:
+
+```tsx
+const asyncSomething = useAsync(() => fetchSomething(buildFetchPayload(state)), [state.a, state.b, state.whateverNeedToTriggerRefetch]);
+```
+
+
 #### How to support retry?
 
 Use a lib that simply adds retry feature to async/promises directly. Doesn't exist? Build it.
