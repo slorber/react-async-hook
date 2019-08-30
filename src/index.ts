@@ -206,19 +206,6 @@ const useAsyncInternal = <R, Args extends any[]>(
   };
 };
 
-// override to allow passing an async function with no args:
-// gives more user-freedom to create an inline async function
-export function useAsync<R, Args extends any[]>(
-  asyncFunction: () => Promise<R>,
-  params: Args,
-  options?: UseAsyncOptions<R>
-): UseAsyncReturn<R, Args>;
-export function useAsync<R, Args extends any[]>(
-  asyncFunction: (...args: Args) => Promise<R>,
-  params: Args,
-  options?: UseAsyncOptions<R>
-): UseAsyncReturn<R, Args>;
-
 export function useAsync<R, Args extends any[]>(
   asyncFunction: (...args: Args) => Promise<R>,
   params: Args,
