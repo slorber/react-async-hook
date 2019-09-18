@@ -243,7 +243,6 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
   useEffect(() => {
     if (isMounting) {
       normalizedOptions.executeOnMount && executeAsyncOperation(...params);
-      normalizedOptions.executeOnMount && executeAsyncOperation(...params);
     } else {
       normalizedOptions.executeOnUpdate && executeAsyncOperation(...params);
     }
