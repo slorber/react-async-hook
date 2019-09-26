@@ -1,4 +1,30 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+
+// See https://gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' &&
+  typeof window.document !== 'undefined' &&
+  typeof window.document.createElement !== 'undefined'
+    ? useLayoutEffect
+    : useEffect;
+
+// assign current value to a ref and providing a getter.
+// This way we are sure to always get latest value provided to hook and
+// avoid weird issues due to closures capturing stale values...
+// See https://overreacted.io/making-setinterval-declarative-with-react-hooks/
+const useGetter = <T>(t: T) => {
+  const ref = useRef(t);
+  useIsomorphicLayoutEffect(() => {
+    ref.current = t;
+  });
+  return () => ref.current;
+};
 
 type UnknownResult = unknown;
 
@@ -106,6 +132,7 @@ const normalizeOptions = <R>(
 type UseAsyncStateResult<R> = {
   value: AsyncState<R>;
   set: (value: AsyncState<R>) => void;
+  merge: (value: Partial<AsyncState<R>>) => void;
   reset: () => void;
   setLoading: () => void;
   setResult: (r: R) => void;
@@ -137,9 +164,20 @@ const useAsyncState = <R extends {}>(
     [value, setValue]
   );
 
+  const set = setValue;
+
+  const merge = useCallback(
+    (state: Partial<AsyncState<R>>) =>
+      set({
+        ...value,
+        ...state,
+      }),
+    [value, set]
+  );
   return {
     value,
-    set: setValue,
+    set,
+    merge,
     reset,
     setLoading,
     setResult,
@@ -177,6 +215,7 @@ export type UseAsyncReturn<
   Args extends any[] = UnknownArgs
 > = AsyncState<R> & {
   set: (value: AsyncState<R>) => void;
+  merge: (value: Partial<AsyncState<R>>) => void;
   reset: () => void;
   execute: (...args: Args) => Promise<R>;
   currentPromise: Promise<R> | null;
@@ -251,6 +290,7 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
   return {
     ...AsyncState.value,
     set: AsyncState.set,
+    merge: AsyncState.merge,
     reset: AsyncState.reset,
     execute: executeAsyncOperation,
     currentPromise: CurrentPromise.get(),
@@ -352,4 +392,85 @@ export const useAsyncCallback = <
       executeOnUpdate: false,
     }
   );
+};
+
+export const useAsyncFetchMore = <R, Args extends any[]>({
+  value,
+  fetchMore,
+  merge,
+  isEnd: isEndFn,
+}: {
+  value: UseAsyncReturn<R, Args>;
+  fetchMore: (result: R) => Promise<R>;
+  merge: (result: R, moreResult: R) => R;
+  isEnd: (moreResult: R) => boolean;
+}) => {
+  const getAsyncValue = useGetter(value);
+  const [isEnd, setIsEnd] = useState(false);
+
+  // TODO not really fan of this id thing, we should find a way to support cancellation!
+  const fetchMoreId = useRef(0);
+
+  const fetchMoreAsync = useAsyncCallback(async () => {
+    const freshAsyncValue = getAsyncValue();
+    if (freshAsyncValue.status !== 'success') {
+      throw new Error(
+        "Can't fetch more if the original fetch is not a success"
+      );
+    }
+    if (fetchMoreAsync.status === 'loading') {
+      throw new Error(
+        "Can't fetch more, because we are already fetching more!"
+      );
+    }
+
+    fetchMoreId.current = fetchMoreId.current + 1;
+    const currentId = fetchMoreId.current;
+    const moreResult = await fetchMore(freshAsyncValue.result!);
+
+    // TODO not satisfied with this, we should just use "freshAsyncValue === getAsyncValue()" but asyncValue is not "stable"
+    const isStillSameValue =
+      freshAsyncValue.status === getAsyncValue().status &&
+      freshAsyncValue.result === getAsyncValue().result;
+
+    const isStillSameId = fetchMoreId.current === currentId;
+
+    // Handle race conditions: we only merge the fetchMore result if the initial async value is the same
+    const canMerge = isStillSameValue && isStillSameId;
+    if (canMerge) {
+      value.merge({
+        result: merge(value.result!, moreResult),
+      });
+      if (isEndFn(moreResult)) {
+        setIsEnd(true);
+      }
+    }
+
+    // return is useful for chaining, like fetchMore().then(result => {});
+    return moreResult;
+  });
+
+  const reset = () => {
+    fetchMoreAsync.reset();
+    setIsEnd(false);
+  };
+
+  // We only allow to fetch more on a stable async value
+  // If that value change for whatever reason, we reset the fetchmore too (which will make current pending requests to be ignored)
+  // TODO value is not stable, we could just reset on value change otherwise
+  const shouldReset = value.status !== 'success';
+  useEffect(() => {
+    if (shouldReset) {
+      reset();
+    }
+  }, [shouldReset]);
+
+  return {
+    canFetchMore:
+      value.status === 'success' && fetchMoreAsync.status !== 'loading',
+    loading: fetchMoreAsync.loading,
+    status: fetchMoreAsync.status,
+    fetchMore: fetchMoreAsync.execute,
+    isEnd,
+  };
 };
