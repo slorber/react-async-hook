@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "downlevelIteration": true
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}
