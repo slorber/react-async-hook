@@ -39,7 +39,7 @@
   "scripts": {
     "start": "tsdx watch",
     "build": "tsdx build",
-    "test": "tsdx --tsconfig ./tsconfig.test.json test --env=jsdom"
+    "test": "tsdx test --env=jsdom"
   },
   "peerDependencies": {
     "react": ">=16.8"
