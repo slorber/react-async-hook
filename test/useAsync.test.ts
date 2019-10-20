@@ -57,29 +57,51 @@ describe('useAync', () => {
   it('should resolve a successful request', async () => {
     fetch.mockResponseOnce(JSON.stringify(fakeResults));
 
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+
     const { result, waitForNextUpdate } = renderHook<
       StarwarsHeroArgs,
       UseAsyncReturn<StarwarsHero[]>
-    >(p => useAsync<StarwarsHero[], any>(p.asyncFunction, []), {
-      initialProps: { ...props },
-    });
+    >(
+      p =>
+        useAsync<StarwarsHero[], any>(p.asyncFunction, [], {
+          onSuccess: () => onSuccess(),
+          onError: () => onError(),
+        }),
+      {
+        initialProps: { ...props },
+      }
+    );
 
     await waitForNextUpdate();
 
     expect(result.current.result).toEqual(fakeResults);
     expect(result.current.loading).toBe(false);
     expect(result.current.error).toBeUndefined();
+    expect(onSuccess).toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
   });
 
   it('should set error detail for unsuccessful request', async () => {
     fetch.mockReject(new Error('something went wrong'));
 
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+
     const { result, waitForNextUpdate } = renderHook<
       StarwarsHeroArgs,
       UseAsyncReturn<StarwarsHero[]>
-    >(p => useAsync<StarwarsHero[], any>(p.asyncFunction, []), {
-      initialProps: { ...props },
-    });
+    >(
+      p =>
+        useAsync<StarwarsHero[], any>(p.asyncFunction, [], {
+          onSuccess: () => onSuccess(),
+          onError: () => onError(),
+        }),
+      {
+        initialProps: { ...props },
+      }
+    );
 
     await waitForNextUpdate();
 
@@ -87,5 +109,7 @@ describe('useAync', () => {
     expect(result.current.error!.message).toBe('something went wrong');
     expect(result.current.loading).toBe(false);
     expect(result.current.result).toBeUndefined();
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalled();
   });
 });
