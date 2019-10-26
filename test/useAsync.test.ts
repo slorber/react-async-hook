@@ -1,13 +1,9 @@
-import { useAsync, UseAsyncReturn } from '../src';
+import { useAsync } from '../src';
 import { renderHook } from '@testing-library/react-hooks';
 
 interface StarwarsHero {
   name: string;
 }
-
-type StarwarsHeroArgs = {
-  asyncFunction: () => Promise<StarwarsHero[]>;
-};
 
 export const generateMockResponseData = (amount: number = 5): StarwarsHero[] =>
   [...Array(amount).keys()].map(n => ({
@@ -26,11 +22,8 @@ describe('useAync', () => {
     const onSuccess = jest.fn();
     const onError = jest.fn();
 
-    const { result, waitForNextUpdate } = renderHook<
-      StarwarsHeroArgs,
-      UseAsyncReturn<StarwarsHero[]>
-    >(() =>
-      useAsync<StarwarsHero[], any>(
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useAsync(
         async () => {
           return Promise.resolve(fakeResults);
         },
@@ -57,11 +50,8 @@ describe('useAync', () => {
     const onSuccess = jest.fn();
     const onError = jest.fn();
 
-    const { result, waitForNextUpdate } = renderHook<
-      StarwarsHeroArgs,
-      UseAsyncReturn<StarwarsHero[]>
-    >(() =>
-      useAsync<StarwarsHero[], any>(
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useAsync(
         async () => {
           return Promise.reject(new Error('something went wrong'));
         },
