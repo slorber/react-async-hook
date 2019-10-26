@@ -53,7 +53,7 @@ describe('useAync', () => {
     const { result, waitForNextUpdate } = renderHook(() =>
       useAsync(
         async () => {
-          return Promise.reject(new Error('something went wrong'));
+          throw new Error('something went wrong');
         },
         [],
         {
