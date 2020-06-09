@@ -4,6 +4,7 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  useMemo,
 } from 'react';
 
 // See https://gist.github.com/gaearon/e7d97cdf38a2907924ea12e4ebdf3c85
@@ -287,15 +288,28 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
     }
   }, params);
 
-  return {
-    ...AsyncState.value,
-    set: AsyncState.set,
-    merge: AsyncState.merge,
-    reset: AsyncState.reset,
-    execute: executeAsyncOperation,
-    currentPromise: CurrentPromise.get(),
-    currentParams,
-  };
+  const currentPromise = CurrentPromise.get();
+
+  return useMemo(
+    () => ({
+      ...AsyncState.value,
+      set: AsyncState.set,
+      merge: AsyncState.merge,
+      reset: AsyncState.reset,
+      execute: executeAsyncOperation,
+      currentPromise,
+      currentParams,
+    }),
+    [
+      AsyncState.value,
+      AsyncState.set,
+      AsyncState.merge,
+      AsyncState.reset,
+      executeAsyncOperation,
+      currentPromise,
+      currentParams,
+    ]
+  );
 };
 
 // override to allow passing an async function with no args:
@@ -465,12 +479,17 @@ export const useAsyncFetchMore = <R, Args extends any[]>({
     }
   }, [shouldReset]);
 
-  return {
-    canFetchMore:
-      value.status === 'success' && fetchMoreAsync.status !== 'loading',
-    loading: fetchMoreAsync.loading,
-    status: fetchMoreAsync.status,
-    fetchMore: fetchMoreAsync.execute,
-    isEnd,
-  };
+  const canFetchMore =
+    value.status === 'success' && fetchMoreAsync.status !== 'loading';
+
+  return useMemo(
+    () => ({
+      canFetchMore,
+      loading: fetchMoreAsync.loading,
+      status: fetchMoreAsync.status,
+      fetchMore: fetchMoreAsync.execute,
+      isEnd,
+    }),
+    [canFetchMore, fetchMoreAsync, isEnd]
+  );
 };
