@@ -31,7 +31,7 @@
     "npm": ">=5"
   },
   "main": "dist/index.js",
-  "module": "react-async-hook.esm.js",
+  "module": "dist/react-async-hook.esm.js",
   "typings": "dist/index.d.ts",
   "files": [
     "dist"
