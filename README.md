@@ -3,17 +3,40 @@
 [![NPM](https://img.shields.io/npm/dm/react-async-hook.svg)](https://www.npmjs.com/package/react-async-hook)
 [![Build Status](https://travis-ci.com/slorber/react-async-hook.svg?branch=master)](https://travis-ci.com/slorber/react-async-hook)
 
-- Simplest way to get async result / feedback in your React component
-- Works with any React platform (ReactNative, Expo...)
-- Refetch on params change
-- Handle async callbacks (mutations)
-- Handle concurrency issues if params change too fast
-- Flexible, works with any async function, not just api calls
-- Support for cancellation (AbortController)
-- Possibility to trigger manual refetches / updates
-- Options to customize state updates
+This library only **do one small thing**, and **do it well**. 
+
+Don't expect it to grow in size, because it is **feature complete**:
+
+- Handle fetches (`useAsync`)
+- Handle mutations (`useAsyncCallback`)
+- Handle cancellation (`useAsyncAbortable` + `AbortController`)
+- Handle race conditions
+- Platform agnostic
+- Works with any async function, not just backend API calls
 - Very good, native, Typescript support
-- Small and no dependency
+- Small, no dependency
+- Rules of hooks: ESLint find missing dependencies
+- Refetch on params change
+- Can trigger manual refetch
+- Options to customize state updates
+- Can mutate state after fetch
+
+
+**Things we don't support, by design**:
+- stale-while-revalidate
+- refetch on focus / resume
+- caching
+- polling
+- request deduplication
+- platform-specific code
+- scroll position restoration
+- SSR
+- router integration for render-as-you-fetch pattern
+
+You can indeed build on top of this little lib to provide more advanced features, if you like composition, that is encouraged in the React ecosystem.
+
+If you prefer a full-featured fetching library, try [SWR](https://github.com/vercel/swr) or [React-Query](https://github.com/tannerlinsley/react-query).
+
 
 ## Usecase: loading async data into a component
 
@@ -82,7 +105,7 @@ or
 
 `npm install react-async-hook --save`
 
-# ESLint
+## ESLint
 
 If you use ESLint, use this [`react-hooks/exhaustive-deps`](https://github.com/facebook/react/blob/master/packages/eslint-plugin-react-hooks/README.md#advanced-configuration) setting:
 
@@ -102,9 +125,6 @@ module.exports = {
 }
 ```
 
-# Warning
-
-This library does not yet support React Suspense, but hopefully it will as soon as it can.
 
 # FAQ
 
