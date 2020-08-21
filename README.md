@@ -82,6 +82,26 @@ or
 
 `npm install react-async-hook --save`
 
+# ESLint
+
+If you use ESLint, use this [`react-hooks/exhaustive-deps`](https://github.com/facebook/react/blob/master/packages/eslint-plugin-react-hooks/README.md#advanced-configuration) setting:
+
+```ts
+// .eslintrc.js
+module.exports = {
+  // ...
+  rules: {
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': [
+      'error',
+      {
+        additionalHooks: '(useAsync|useAsyncCallback)',
+      },
+    ],
+  }
+}
+```
+
 # Warning
 
 This library does not yet support React Suspense, but hopefully it will as soon as it can.
