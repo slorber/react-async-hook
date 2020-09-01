@@ -28,17 +28,24 @@ Don't expect it to grow in size, because it is **feature complete**:
 - CommonJS + ESM bundles, tree-shakable
 - Design using composition, good tree-shakeability
 
-### react-async-hook
+**react-async-hook**:
 
-![](https://img.shields.io/bundlephobia/min/react-async-hook.svg) ![](https://img.shields.io/bundlephobia/minzip/react-async-hook.svg) 
 
-### React-Query
+- ![](https://img.shields.io/bundlephobia/min/react-async-hook.svg) 
+- ![](https://img.shields.io/bundlephobia/minzip/react-async-hook.svg) 
 
-![](https://img.shields.io/bundlephobia/min/react-query.svg) ![](https://img.shields.io/bundlephobia/minzip/react-query.svg) 
 
-### SWR
+**React-Query**:
 
-![](https://img.shields.io/bundlephobia/min/swr.svg) ![](https://img.shields.io/bundlephobia/minzip/swr.svg) 
+- ![](https://img.shields.io/bundlephobia/min/react-query.svg) 
+- ![](https://img.shields.io/bundlephobia/minzip/react-query.svg) 
+
+
+**SWR**:
+
+- ![](https://img.shields.io/bundlephobia/min/swr.svg) 
+- ![](https://img.shields.io/bundlephobia/minzip/swr.svg) 
+
 
 ## Things we don't support (by design):
 
