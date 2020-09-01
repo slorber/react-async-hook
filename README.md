@@ -12,7 +12,7 @@ Don't expect it to grow in size, because it is **feature complete**:
 - Handle cancellation (`useAsyncAbortable` + `AbortController`)
 - Handle race conditions
 - Platform agnostic
-- Works with any async function, not just backend API calls
+- Works with any async function, not just backend API calls, not just fetch/axios...
 - Very good, native, Typescript support
 - Small, no dependency
 - Rules of hooks: ESLint find missing dependencies
@@ -21,8 +21,27 @@ Don't expect it to grow in size, because it is **feature complete**:
 - Options to customize state updates
 - Can mutate state after fetch
 
+## Small size
 
-**Things we don't support, by design**:
+- Tiny (1.5k minified gzipped)
+- At least 3 times smaller than popular alternatives.
+- CommonJS + ESM bundles, tree-shakable
+- Design using composition, good tree-shakeability
+
+### react-async-hook
+
+![](https://img.shields.io/bundlephobia/min/react-async-hook.svg) ![](https://img.shields.io/bundlephobia/minzip/react-async-hook.svg) 
+
+### React-Query
+
+![](https://img.shields.io/bundlephobia/min/react-query.svg) ![](https://img.shields.io/bundlephobia/minzip/react-query.svg) 
+
+### SWR
+
+![](https://img.shields.io/bundlephobia/min/swr.svg) ![](https://img.shields.io/bundlephobia/minzip/swr.svg) 
+
+## Things we don't support (by design):
+
 - stale-while-revalidate
 - refetch on focus / resume
 - caching
