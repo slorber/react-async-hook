@@ -3,7 +3,7 @@
 [![NPM](https://img.shields.io/npm/dm/react-async-hook.svg)](https://www.npmjs.com/package/react-async-hook)
 [![Build Status](https://travis-ci.com/slorber/react-async-hook.svg?branch=master)](https://travis-ci.com/slorber/react-async-hook)
 
-This library only **do one small thing**, and **do it well**. 
+This library only **does one small thing**, and **does it well**. 
 
 Don't expect it to grow in size, because it is **feature complete**:
 
