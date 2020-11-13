@@ -10,7 +10,7 @@ Don't expect it to grow in size, because it is **feature complete**:
 - Handle fetches (`useAsync`)
 - Handle mutations (`useAsyncCallback`)
 - Handle cancellation (`useAsyncAbortable` + `AbortController`)
-- Handle race conditions
+- Handle [race conditions](https://sebastienlorber.com/handling-api-request-race-conditions-in-react)
 - Platform agnostic
 - Works with any async function, not just backend API calls, not just fetch/axios...
 - Very good, native, Typescript support
