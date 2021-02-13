@@ -1,3 +1,4 @@
+import isPromise from 'p-is-promise';
 import {
   useCallback,
   useEffect,
@@ -246,7 +247,7 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
   const executeAsyncOperation = (...args: Args): Promise<R> => {
     const promise: MaybePromise<R> = asyncFunction(...args);
     setCurrentParams(args);
-    if (promise instanceof Promise) {
+    if (isPromise(promise)) {
       CurrentPromise.set(promise);
       AsyncState.setLoading();
       promise.then(
