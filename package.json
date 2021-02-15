@@ -44,9 +44,6 @@
   "peerDependencies": {
     "react": ">=16.8"
   },
-  "dependencies": {
-    "p-is-promise": "^3.0.0"
-  },
   "husky": {
     "hooks": {
       "pre-commit": "pretty-quick --staged"

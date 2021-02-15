@@ -1,4 +1,3 @@
-import isPromise from 'p-is-promise';
 import {
   useCallback,
   useEffect,
@@ -222,6 +221,11 @@ export type UseAsyncReturn<
   currentPromise: Promise<R> | null;
   currentParams: Args | null;
 };
+
+const isPromise = (promise: unknown): promise is Promise<unknown> =>
+  (typeof promise === 'object' || typeof promise === 'function') &&
+  !!promise &&
+  typeof (promise as Promise<unknown>).then === 'function';
 
 // Relaxed interface which accept both async and sync functions
 // Accepting sync function is convenient for useAsyncCallback
