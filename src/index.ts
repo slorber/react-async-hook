@@ -222,6 +222,9 @@ export type UseAsyncReturn<
   currentParams: Args | null;
 };
 
+// Promises/A+ only requires `then` method
+// https://promisesaplus.com
+/** Returns true if promise is Promises/A+ compliant */
 const isPromise = (promise: unknown): promise is Promise<unknown> =>
   (typeof promise === 'object' || typeof promise === 'function') &&
   !!promise &&
