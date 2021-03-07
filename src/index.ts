@@ -301,18 +301,18 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
 // override to allow passing an async function with no args:
 // gives more user-freedom to create an inline async function
 export function useAsync<R = UnknownResult, Args extends any[] = UnknownArgs>(
-  asyncFunction: () => Promise<R>,
+  asyncFunction: () => MaybePromise<R>,
   params: Args,
   options?: UseAsyncOptions<R>
 ): UseAsyncReturn<R, Args>;
 export function useAsync<R = UnknownResult, Args extends any[] = UnknownArgs>(
-  asyncFunction: (...args: Args) => Promise<R>,
+  asyncFunction: (...args: Args) => MaybePromise<R>,
   params: Args,
   options?: UseAsyncOptions<R>
 ): UseAsyncReturn<R, Args>;
 
 export function useAsync<R = UnknownResult, Args extends any[] = UnknownArgs>(
-  asyncFunction: (...args: Args) => Promise<R>,
+  asyncFunction: (...args: Args) => MaybePromise<R>,
   params: Args,
   options?: UseAsyncOptions<R>
 ): UseAsyncReturn<R, Args> {
@@ -329,7 +329,7 @@ export const useAsyncAbortable = <
   R = UnknownResult,
   Args extends any[] = UnknownArgs
 >(
-  asyncFunction: (...args: AddArg<AbortSignal, Args>) => Promise<R>,
+  asyncFunction: (...args: AddArg<AbortSignal, Args>) => MaybePromise<R>,
   params: Args,
   options?: UseAsyncOptions<R>
 ): UseAsyncReturn<R, Args> => {
