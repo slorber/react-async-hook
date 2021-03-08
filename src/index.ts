@@ -197,12 +197,12 @@ const useIsMounted = (): (() => boolean) => {
 };
 
 type UseCurrentPromiseReturn<R> = {
-  set: (promise: Promise<R>) => void;
-  get: () => Promise<R> | null;
-  is: (promise: Promise<R>) => boolean;
+  set: (promise: PromiseLike<R>) => void;
+  get: () => PromiseLike<R> | null;
+  is: (promise: PromiseLike<R>) => boolean;
 };
 const useCurrentPromise = <R>(): UseCurrentPromiseReturn<R> => {
-  const ref = useRef<Promise<R> | null>(null);
+  const ref = useRef<PromiseLike<R> | null>(null);
   return {
     set: promise => (ref.current = promise),
     get: () => ref.current,
@@ -217,18 +217,17 @@ export type UseAsyncReturn<
   set: (value: AsyncState<R>) => void;
   merge: (value: Partial<AsyncState<R>>) => void;
   reset: () => void;
-  execute: (...args: Args) => Promise<R>;
-  currentPromise: Promise<R> | null;
+  execute: (...args: Args) => PromiseLike<R>;
+  currentPromise: PromiseLike<R> | null;
   currentParams: Args | null;
 };
 
-// Promises/A+ only requires `then` method
+// Promises/A+ requires promise to be an object or function and have `then` method
 // https://promisesaplus.com
 /** Returns true if promise is Promises/A+ compliant */
-const isPromise = (promise: unknown): promise is Promise<unknown> =>
-  (typeof promise === 'object' || typeof promise === 'function') &&
-  !!promise &&
-  typeof (promise as Promise<unknown>).then === 'function';
+const isPromiseLike = (promise: unknown): promise is PromiseLike<unknown> =>
+  ((typeof promise === 'object' && promise) || typeof promise === 'function') &&
+  typeof (promise as PromiseLike<unknown>).then === 'function';
 
 // Relaxed interface which accept both async and sync functions
 // Accepting sync function is convenient for useAsyncCallback
@@ -248,13 +247,13 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
 
   // We only want to handle the promise result/error
   // if it is the last operation and the comp is still mounted
-  const shouldHandlePromise = (p: Promise<R>) =>
+  const shouldHandlePromise = (p: PromiseLike<R>) =>
     isMounted() && CurrentPromise.is(p);
 
-  const executeAsyncOperation = (...args: Args): Promise<R> => {
-    const promise: MaybePromise<R> = asyncFunction(...args);
+  const executeAsyncOperation = (...args: Args): PromiseLike<R> => {
+    const promise: PromiseLike<R> | R = asyncFunction(...args);
     setCurrentParams(args);
-    if (isPromise(promise)) {
+    if (isPromiseLike(promise)) {
       CurrentPromise.set(promise);
       AsyncState.setLoading();
       promise.then(
