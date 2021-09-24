@@ -46,6 +46,9 @@ describe('useAync', () => {
     expect(onError).not.toHaveBeenCalled();
   });
 
+  // Test added because Jest mocks can return promises that arre not instances of Promises
+  // This test ensures better testability of user code
+  // See https://github.com/slorber/react-async-hook/issues/24
   it('should resolve a successful Jest mocked resolved value', async () => {
     const onSuccess = jest.fn();
     const onError = jest.fn();
