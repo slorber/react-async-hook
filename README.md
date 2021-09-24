@@ -3,9 +3,9 @@
 [![NPM](https://img.shields.io/npm/dm/react-async-hook.svg)](https://www.npmjs.com/package/react-async-hook)
 [![Build Status](https://travis-ci.com/slorber/react-async-hook.svg?branch=master)](https://travis-ci.com/slorber/react-async-hook)
 
-This library only **does one small thing**, and **does it well**.
+This **tiny** library only **does one small thing**, and **does it well**.
 
-Don't expect it to grow in size, because it is **feature complete**:
+Don't expect it to grow in size, it is **feature complete**:
 
 - Handle fetches (`useAsync`)
 - Handle mutations (`useAsyncCallback`)
@@ -23,25 +23,19 @@ Don't expect it to grow in size, because it is **feature complete**:
 
 ## Small size
 
-- Tiny (1.5k minified gzipped)
-- At least 3 times smaller than popular alternatives.
-- CommonJS + ESM bundles, tree-shakable
-- Design using composition, good tree-shakeability
+- Tiny
+- Way smaller than popular alternatives
+- CommonJS + ESM bundles
+- Tree-shakable
 
-**react-async-hook**:
-
-- ![](https://img.shields.io/bundlephobia/min/react-async-hook.svg)
-- ![](https://img.shields.io/bundlephobia/minzip/react-async-hook.svg)
-
-**React-Query**:
-
-- ![](https://img.shields.io/bundlephobia/min/react-query.svg)
-- ![](https://img.shields.io/bundlephobia/minzip/react-query.svg)
-
-**SWR**:
-
-- ![](https://img.shields.io/bundlephobia/min/swr.svg)
-- ![](https://img.shields.io/bundlephobia/minzip/swr.svg)
+| Lib                  | min                                                                                                                    | min.gz                                                                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **React-Async-Hook** | [![](https://img.shields.io/bundlephobia/min/react-async-hook.svg)](https://bundlephobia.com/package/react-async-hook) | [![](https://img.shields.io/bundlephobia/minzip/react-async-hook.svg)](https://bundlephobia.com/package/react-async-hook) |
+| **SWR**              | [![](https://img.shields.io/bundlephobia/min/swr.svg)](https://bundlephobia.com/package/swr)                           | [![](https://img.shields.io/bundlephobia/minzip/swr.svg)](https://bundlephobia.com/package/swr)                           |
+| **React-Query**      | [![](https://img.shields.io/bundlephobia/min/react-query.svg)](https://bundlephobia.com/package/react-query)           | [![](https://img.shields.io/bundlephobia/minzip/react-query.svg)](https://bundlephobia.com/package/react-query)           |
+| **React-Async**      | [![](https://img.shields.io/bundlephobia/min/react-async.svg)](https://bundlephobia.com/package/react-async)           | [![](https://img.shields.io/bundlephobia/minzip/react-async.svg)](https://bundlephobia.com/package/react-async)           |
+| **Use-HTTP**         | [![](https://img.shields.io/bundlephobia/min/use-http.svg)](https://bundlephobia.com/package/use-http)                 | [![](https://img.shields.io/bundlephobia/minzip/use-http.svg)](https://bundlephobia.com/package/use-http)                 |
+| **Rest-Hooks**       | [![](https://img.shields.io/bundlephobia/min/rest-hooks.svg)](https://bundlephobia.com/package/rest-hooks)             | [![](https://img.shields.io/bundlephobia/minzip/rest-hooks.svg)](https://bundlephobia.com/package/rest-hooks)             |
 
 ## Things we don't support (by design):
 
