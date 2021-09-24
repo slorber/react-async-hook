@@ -3,7 +3,7 @@
 [![NPM](https://img.shields.io/npm/dm/react-async-hook.svg)](https://www.npmjs.com/package/react-async-hook)
 [![Build Status](https://travis-ci.com/slorber/react-async-hook.svg?branch=master)](https://travis-ci.com/slorber/react-async-hook)
 
-This library only **does one small thing**, and **does it well**. 
+This library only **does one small thing**, and **does it well**.
 
 Don't expect it to grow in size, because it is **feature complete**:
 
@@ -30,22 +30,18 @@ Don't expect it to grow in size, because it is **feature complete**:
 
 **react-async-hook**:
 
-
-- ![](https://img.shields.io/bundlephobia/min/react-async-hook.svg) 
-- ![](https://img.shields.io/bundlephobia/minzip/react-async-hook.svg) 
-
+- ![](https://img.shields.io/bundlephobia/min/react-async-hook.svg)
+- ![](https://img.shields.io/bundlephobia/minzip/react-async-hook.svg)
 
 **React-Query**:
 
-- ![](https://img.shields.io/bundlephobia/min/react-query.svg) 
-- ![](https://img.shields.io/bundlephobia/minzip/react-query.svg) 
-
+- ![](https://img.shields.io/bundlephobia/min/react-query.svg)
+- ![](https://img.shields.io/bundlephobia/minzip/react-query.svg)
 
 **SWR**:
 
-- ![](https://img.shields.io/bundlephobia/min/swr.svg) 
-- ![](https://img.shields.io/bundlephobia/minzip/swr.svg) 
-
+- ![](https://img.shields.io/bundlephobia/min/swr.svg)
+- ![](https://img.shields.io/bundlephobia/minzip/swr.svg)
 
 ## Things we don't support (by design):
 
@@ -63,7 +59,6 @@ You can indeed build on top of this little lib to provide more advanced features
 
 If you prefer a full-featured fetching library, try [SWR](https://github.com/vercel/swr) or [React-Query](https://github.com/tannerlinsley/react-query).
 
-
 ## Usecase: loading async data into a component
 
 The ability to inject remote/async data into a React component is a very common React need. Later we might support Suspense as well.
@@ -72,7 +67,7 @@ The ability to inject remote/async data into a React component is a very common 
 import { useAsync } from 'react-async-hook';
 
 const fetchStarwarsHero = async id =>
-  (await fetch(`https://swapi.co/api/people/${id}/`)).json();
+  (await fetch(`https://swapi.dev/api/people/${id}/`)).json();
 
 const StarwarsHero = ({ id }) => {
   const asyncHero = useAsync(fetchStarwarsHero, [id]);
@@ -147,10 +142,9 @@ module.exports = {
         additionalHooks: '(useAsync|useAsyncCallback)',
       },
     ],
-  }
-}
+  },
+};
 ```
-
 
 # FAQ
 
@@ -187,7 +181,7 @@ const searchStarwarsHero = async (
   abortSignal?: AbortSignal
 ): Promise<StarwarsHero[]> => {
   const result = await fetch(
-    `https://swapi.co/api/people/?search=${encodeURIComponent(text)}`,
+    `https://swapi.dev/api/people/?search=${encodeURIComponent(text)}`,
     {
       signal: abortSignal,
     }
@@ -270,7 +264,7 @@ It is your responsability to wire the abort signal appropriately.
 const StarwarsHero = ({ id }) => {
   const asyncHero = useAsyncAbortable(
     async (abortSignal, id) => {
-      const result = await fetch(`https://swapi.co/api/people/${id}/`, {
+      const result = await fetch(`https://swapi.dev/api/people/${id}/`, {
         signal: abortSignal,
       });
       if (result.status !== 200) {
@@ -322,13 +316,18 @@ In this case you'd better use a closure with no arg define in the dependency arr
 Here, both `state.a` and `state.b` will trigger a refetch, despite b is not passed to the async fetch function.
 
 ```tsx
-const asyncSomething = useAsync(() => fetchSomething(state.a), [state.a,state.b]);
+const asyncSomething = useAsync(() => fetchSomething(state.a), [
+  state.a,
+  state.b,
+]);
 ```
 
 Here, only `state.a` will trigger a refetch, despite b being passed to the async fetch function.
 
 ```tsx
-const asyncSomething = useAsync(() => fetchSomething(state.a, state.b), [state.a]);
+const asyncSomething = useAsync(() => fetchSomething(state.a, state.b), [
+  state.a,
+]);
 ```
 
 Note you can also use this to "build" a more complex payload. Using `useMemo` does not guarantee the memoized value will not be cleared, so it's better to do:
@@ -353,7 +352,6 @@ const asyncSomething = useAsyncCallback(async () => {
 // Call this manually whenever you need:
 asyncSomething.execute();
 ```
-
 
 #### How to support retry?
 
