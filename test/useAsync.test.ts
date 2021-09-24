@@ -1,25 +1,35 @@
 import { useAsync } from '../src';
 import { renderHook } from '@testing-library/react-hooks';
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 interface StarwarsHero {
   name: string;
 }
 
-export const generateMockResponseData = (amount: number = 5): StarwarsHero[] =>
+export const generateFakeResults = (pageSize: number = 5): StarwarsHero[] =>
   // @ts-ignore
-  [...Array(amount).keys()].map(n => ({
+  [...Array(pageSize).keys()].map(n => ({
     id: n + 1,
     name: `Starwars Hero ${n + 1}`,
   }));
 
+export const generateFakeResultsAsync = async (
+  pageSize: number = 5,
+  delay = 100
+): Promise<StarwarsHero[]> => {
+  await sleep(delay);
+  return generateFakeResults(pageSize);
+};
+
 describe('useAync', () => {
-  const fakeResults = generateMockResponseData();
+  const fakeResults = generateFakeResults();
 
   it('should have a useAsync hook', () => {
     expect(useAsync).toBeDefined();
   });
 
-  it('should resolve a successful request', async () => {
+  it('should resolve a successful resolved promise', async () => {
     const onSuccess = jest.fn();
     const onError = jest.fn();
 
@@ -45,6 +55,90 @@ describe('useAync', () => {
     expect(result.current.error).toBeUndefined();
     expect(onSuccess).toHaveBeenCalled();
     expect(onError).not.toHaveBeenCalled();
+  });
+
+  it('should resolve a successful real-world request + handle params update', async () => {
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+
+    const { result, waitForNextUpdate, rerender } = renderHook(
+      ({ pageSize }: { pageSize: number }) =>
+        useAsync(() => generateFakeResultsAsync(pageSize), [pageSize], {
+          onSuccess: () => onSuccess(),
+          onError: () => onError(),
+        }),
+      {
+        initialProps: { pageSize: 5 },
+      }
+    );
+
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.result).toEqual(generateFakeResults(5));
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(onError).not.toHaveBeenCalled();
+
+    rerender({
+      pageSize: 6,
+    });
+
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.result).toEqual(generateFakeResults(6));
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(onSuccess).toHaveBeenCalledTimes(2);
+    expect(onError).not.toHaveBeenCalled();
+  });
+
+  it('should resolve a successful real-world requests with potential race conditions', async () => {
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+
+    const { result, waitForNextUpdate, rerender } = renderHook(
+      ({ pageSize, delay }: { pageSize: number; delay: number }) =>
+        useAsync(
+          () => generateFakeResultsAsync(pageSize, delay),
+          [pageSize, delay],
+          {
+            onSuccess: () => onSuccess(),
+            onError: () => onError(),
+          }
+        ),
+      {
+        initialProps: { pageSize: 5, delay: 200 },
+      }
+    );
+
+    rerender({
+      pageSize: 6,
+      delay: 100,
+    });
+
+    rerender({
+      pageSize: 7,
+      delay: 0,
+    });
+
+    expect(result.current.loading).toBe(true);
+    await waitForNextUpdate();
+    expect(result.current.result).toEqual(generateFakeResults(7));
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(onSuccess).toHaveBeenCalledTimes(1);
+    expect(onError).not.toHaveBeenCalled();
+
+    await sleep(100);
+    expect(onSuccess).toHaveBeenCalledTimes(2);
+
+    await sleep(100);
+    expect(onSuccess).toHaveBeenCalledTimes(3);
+
+    expect(result.current.result).toEqual(generateFakeResults(7));
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
   });
 
   // Test added because Jest mocks can return promises that arre not instances of Promises
