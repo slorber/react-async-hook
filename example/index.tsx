@@ -38,7 +38,7 @@ const fetchStarwarsHero = async (
   id: string,
   abortSignal?: AbortSignal
 ): Promise<StarwarsHero> => {
-  const result = await fetch(`https://swapi.co/api/people/${id}/`, {
+  const result = await fetch(`https://swapi.dev/api/people/${id}/`, {
     signal: abortSignal,
   });
   if (result.status !== 200) {
@@ -52,7 +52,7 @@ const searchStarwarsHero = async (
   abortSignal?: AbortSignal
 ): Promise<StarwarsHero[]> => {
   const result = await fetch(
-    `https://swapi.co/api/people/?search=${encodeURIComponent(text)}`,
+    `https://swapi.dev/api/people/?search=${encodeURIComponent(text)}`,
     {
       signal: abortSignal,
     }
