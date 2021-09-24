@@ -14,16 +14,17 @@ const useIsomorphicLayoutEffect =
     ? useLayoutEffect
     : useEffect;
 
-// assign current value to a ref and providing a getter.
+// Assign current value to a ref and returns a stable getter to get the latest value.
 // This way we are sure to always get latest value provided to hook and
 // avoid weird issues due to closures capturing stale values...
+// See https://github.com/facebook/react/issues/16956
 // See https://overreacted.io/making-setinterval-declarative-with-react-hooks/
 const useGetter = <T>(t: T) => {
   const ref = useRef(t);
   useIsomorphicLayoutEffect(() => {
     ref.current = t;
   });
-  return () => ref.current;
+  return useCallback(() => ref.current, [ref]);
 };
 
 type UnknownResult = unknown;
@@ -164,19 +165,18 @@ const useAsyncState = <R extends {}>(
     [value, setValue]
   );
 
-  const set = setValue;
-
   const merge = useCallback(
     (state: Partial<AsyncState<R>>) =>
-      set({
+      setValue({
         ...value,
         ...state,
       }),
-    [value, set]
+    [value, setValue]
   );
+
   return {
     value,
-    set,
+    set: setValue,
     merge,
     reset,
     setLoading,
@@ -276,15 +276,20 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
     }
   };
 
+  const getLatestExecuteAsyncOperation = useGetter(executeAsyncOperation);
+
+  const executeAsyncOperationMemo: (...args: Args) => Promise<R> = useCallback(
+    (...args) => getLatestExecuteAsyncOperation()(...args),
+    [getLatestExecuteAsyncOperation]
+  );
+
   // Keep this outside useEffect, because inside isMounted()
   // will be true as the component is already mounted when it's run
   const isMounting = !isMounted();
   useEffect(() => {
-    if (isMounting) {
-      normalizedOptions.executeOnMount && executeAsyncOperation(...params);
-    } else {
-      normalizedOptions.executeOnUpdate && executeAsyncOperation(...params);
-    }
+    const execute = () => getLatestExecuteAsyncOperation()(...params);
+    isMounting && normalizedOptions.executeOnMount && execute();
+    !isMounting && normalizedOptions.executeOnUpdate && execute();
   }, params);
 
   return {
@@ -292,7 +297,7 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
     set: AsyncState.set,
     merge: AsyncState.merge,
     reset: AsyncState.reset,
-    execute: executeAsyncOperation,
+    execute: executeAsyncOperationMemo,
     currentPromise: CurrentPromise.get(),
     currentParams,
   };
