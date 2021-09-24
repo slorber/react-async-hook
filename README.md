@@ -3,7 +3,7 @@
 [![NPM](https://img.shields.io/npm/dm/react-async-hook.svg)](https://www.npmjs.com/package/react-async-hook)
 [![Build Status](https://travis-ci.com/slorber/react-async-hook.svg?branch=master)](https://travis-ci.com/slorber/react-async-hook)
 
-This **tiny** library only **does one small thing**, and **does it well**.
+This **tiny** library only **does one thing**, and **does it well**.
 
 Don't expect it to grow in size, it is **feature complete**:
 
@@ -49,11 +49,9 @@ Don't expect it to grow in size, it is **feature complete**:
 - SSR
 - router integration for render-as-you-fetch pattern
 
-You can indeed build on top of this little lib to provide more advanced features, if you like composition, that is encouraged in the React ecosystem.
+You can build on top of this little lib to provide more advanced features (using composition), or move to popular full-featured libraries like [SWR](https://github.com/vercel/swr) or [React-Query](https://github.com/tannerlinsley/react-query).
 
-If you prefer a full-featured fetching library, try [SWR](https://github.com/vercel/swr) or [React-Query](https://github.com/tannerlinsley/react-query).
-
-## Usecase: loading async data into a component
+## Use-case: loading async data into a component
 
 The ability to inject remote/async data into a React component is a very common React need. Later we might support Suspense as well.
 
@@ -80,7 +78,7 @@ const StarwarsHero = ({ id }) => {
 };
 ```
 
-## Usecase: injecting async feedback into buttons
+## Use-case: injecting async feedback into buttons
 
 If you have a Todo app, you might want to show some feedback into the "create todo" button while the creation is pending, and prevent duplicate todo creations by disabling the button.
 
@@ -146,7 +144,7 @@ module.exports = {
 
 It is possible to debounce a promise.
 
-I recommend [awesome-debounce-promise](https://github.com/slorber/awesome-debounce-promise), as it handles nicely potential concurrency issues and have React in mind (particularly the common usecase of a debounced search input/autocomplete)
+I recommend [awesome-debounce-promise](https://github.com/slorber/awesome-debounce-promise), as it handles nicely potential concurrency issues and have React in mind (particularly the common use-case of a debounced search input/autocomplete)
 
 As debounced functions are stateful, we have to "store" the debounced function inside a component. We'll use for that [use-constant](https://github.com/Andarist/use-constant) (backed by `useRef`).
 
@@ -166,7 +164,7 @@ const StarwarsHero = ({ id }) => {
 
 #### How can I implement a debounced search input / autocomplete?
 
-This is one of the most common usecase for fetching data + debouncing in a component, and can be implemented easily by composing different libraries.
+This is one of the most common use-case for fetching data + debouncing in a component, and can be implemented easily by composing different libraries.
 All this logic can easily be extracted into a single hook that you can reuse. Here is an example:
 
 ```tsx
@@ -349,7 +347,7 @@ asyncSomething.execute();
 
 #### How to support retry?
 
-Use a lib that simply adds retry feature to async/promises directly. Doesn't exist? Build it.
+Use a lib that adds retry feature to async/promises directly.
 
 # License
 
