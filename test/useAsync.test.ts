@@ -6,6 +6,7 @@ interface StarwarsHero {
 }
 
 export const generateMockResponseData = (amount: number = 5): StarwarsHero[] =>
+  // @ts-ignore
   [...Array(amount).keys()].map(n => ({
     id: n + 1,
     name: `Starwars Hero ${n + 1}`,
@@ -108,6 +109,33 @@ describe('useAync', () => {
     const { result, waitForNextUpdate } = renderHook(() =>
       useAsync(
         async () => {
+          throw new Error('something went wrong');
+        },
+        [],
+        {
+          onSuccess: () => onSuccess(),
+          onError: () => onError(),
+        }
+      )
+    );
+
+    await waitForNextUpdate();
+
+    expect(result.current.error).toBeDefined();
+    expect(result.current.error!.message).toBe('something went wrong');
+    expect(result.current.loading).toBe(false);
+    expect(result.current.result).toBeUndefined();
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalled();
+  });
+
+  it('should set error detail for error thrown synchronously (like when preparing/formatting a payload)', async () => {
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useAsync(
+        () => {
           throw new Error('something went wrong');
         },
         [],
