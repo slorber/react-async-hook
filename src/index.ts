@@ -1,4 +1,6 @@
 import {
+  Dispatch,
+  SetStateAction,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -132,7 +134,7 @@ const normalizeOptions = <R>(
 
 type UseAsyncStateResult<R> = {
   value: AsyncState<R>;
-  set: (value: AsyncState<R>) => void;
+  set: Dispatch<SetStateAction<AsyncState<R>>>;
   merge: (value: Partial<AsyncState<R>>) => void;
   reset: () => void;
   setLoading: () => void;
