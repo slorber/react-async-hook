@@ -46,6 +46,34 @@ describe('useAync', () => {
     expect(onError).not.toHaveBeenCalled();
   });
 
+  // TODO legacy: should we remove this behavior?
+  it('should resolve a successful synchronous request', async () => {
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useAsync(
+        // @ts-ignore: not allowed by TS on purpose, but still allowed at runtime
+        () => fakeResults,
+        [],
+        {
+          onSuccess: () => onSuccess(),
+          onError: () => onError(),
+        }
+      )
+    );
+
+    expect(result.current.loading).toBe(true);
+
+    await waitForNextUpdate();
+
+    expect(result.current.result).toEqual(fakeResults);
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(onSuccess).toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
   it('should set error detail for unsuccessful request', async () => {
     const onSuccess = jest.fn();
     const onError = jest.fn();
