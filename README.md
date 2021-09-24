@@ -20,10 +20,10 @@ Don't expect it to grow in size, it is **feature complete**:
 - Can trigger manual refetch
 - Options to customize state updates
 - Can mutate state after fetch
+- Returned callbacks are stable
 
 ## Small size
 
-- Tiny
 - Way smaller than popular alternatives
 - CommonJS + ESM bundles
 - Tree-shakable
@@ -297,6 +297,21 @@ const StarwarsHero = ({ id }) => {
 
   return <div onClick={() => asyncHero.execute()}>...</div>;
 };
+```
+
+#### How to handle conditional fetch?
+
+You can enable/disable the fetch logic directly inside the async callback. In some cases you know your API won't return anything useful.
+
+```tsx
+const asyncSearchResults = useAsync(async () => {
+  // It's useless to call a search API with an empty text
+  if (text.length === 0) {
+    return [];
+  } else {
+    return getSearchResultsAsync(text);
+  }
+}, [text]);
 ```
 
 #### How to have better control when things get fetched/refetched?
