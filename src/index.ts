@@ -271,7 +271,7 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
       );
       return promise;
     } else {
-      // We allow passing a non-async function (mostly for useAsyncCallback conveniency)
+      // We allow passing a non-async function (mostly for useAsyncCallback convenience)
       const syncResult: R = promise;
       AsyncState.setResult(syncResult);
       return Promise.resolve<R>(syncResult);
