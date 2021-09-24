@@ -46,6 +46,30 @@ describe('useAync', () => {
     expect(onError).not.toHaveBeenCalled();
   });
 
+  it('should resolve a successful Jest mocked resolved value', async () => {
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+
+    const asyncFunction = jest.fn().mockResolvedValue(fakeResults);
+
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useAsync(asyncFunction, [], {
+        onSuccess: () => onSuccess(),
+        onError: () => onError(),
+      })
+    );
+
+    expect(result.current.loading).toBe(true);
+
+    await waitForNextUpdate();
+
+    expect(result.current.result).toEqual(fakeResults);
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+    expect(onSuccess).toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
+  });
+
   // TODO legacy: should we remove this behavior?
   it('should resolve a successful synchronous request', async () => {
     const onSuccess = jest.fn();

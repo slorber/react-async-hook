@@ -246,36 +246,32 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
     isMounted() && CurrentPromise.is(p);
 
   const executeAsyncOperation = (...args: Args): Promise<R> => {
-    const promise: MaybePromise<R> = asyncFunction(...args);
+    // async ensures errors thrown synchronously are caught (ie, bug when formatting api payloads)
+    // async ensures promise-like and synchronous functions are handled correctly too
+    // see https://github.com/slorber/react-async-hook/issues/24
+    const promise: Promise<R> = (async () => asyncFunction(...args))();
     setCurrentParams(args);
-    if (promise instanceof Promise) {
-      CurrentPromise.set(promise);
-      AsyncState.setLoading();
-      promise.then(
-        result => {
-          if (shouldHandlePromise(promise)) {
-            AsyncState.setResult(result);
-          }
-          normalizedOptions.onSuccess(result, {
-            isCurrent: () => CurrentPromise.is(promise),
-          });
-        },
-        error => {
-          if (shouldHandlePromise(promise)) {
-            AsyncState.setError(error);
-          }
-          normalizedOptions.onError(error, {
-            isCurrent: () => CurrentPromise.is(promise),
-          });
+    CurrentPromise.set(promise);
+    AsyncState.setLoading();
+    promise.then(
+      result => {
+        if (shouldHandlePromise(promise)) {
+          AsyncState.setResult(result);
         }
-      );
-      return promise;
-    } else {
-      // We allow passing a non-async function (mostly for useAsyncCallback convenience)
-      const syncResult: R = promise;
-      AsyncState.setResult(syncResult);
-      return Promise.resolve<R>(syncResult);
-    }
+        normalizedOptions.onSuccess(result, {
+          isCurrent: () => CurrentPromise.is(promise),
+        });
+      },
+      error => {
+        if (shouldHandlePromise(promise)) {
+          AsyncState.setError(error);
+        }
+        normalizedOptions.onError(error, {
+          isCurrent: () => CurrentPromise.is(promise),
+        });
+      }
+    );
+    return promise;
   };
 
   const getLatestExecuteAsyncOperation = useGetter(executeAsyncOperation);
