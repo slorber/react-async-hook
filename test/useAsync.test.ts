@@ -93,6 +93,26 @@ describe('useAync', () => {
     expect(onError).not.toHaveBeenCalled();
   });
 
+  // See https://github.com/slorber/react-async-hook/issues/27
+  it('should handle async function without dependency array (shortcut) ', async () => {
+    const getFakeResultsAsync = () => Promise.resolve(fakeResults);
+
+    const { result, waitForNextUpdate } = renderHook(() =>
+      // It is better to always required a deps array for TS users, but JS users might forget it so...
+      // Should we allow this "shortcut" for TS users too? I'd rather not
+      // @ts-ignore
+      useAsync(getFakeResultsAsync)
+    );
+
+    expect(result.current.loading).toBe(true);
+
+    await waitForNextUpdate();
+
+    expect(result.current.result).toEqual(fakeResults);
+    expect(result.current.loading).toBe(false);
+    expect(result.current.error).toBeUndefined();
+  });
+
   it('should resolve a successful real-world requests with potential race conditions', async () => {
     const onSuccess = jest.fn();
     const onError = jest.fn();

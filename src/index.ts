@@ -231,6 +231,11 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
   params: Args,
   options?: UseAsyncOptions<R>
 ): UseAsyncReturn<R, Args> => {
+  // Fallback missing params, only for JS users forgetting the deps array, to prevent infinite loops
+  // https://github.com/slorber/react-async-hook/issues/27
+  // @ts-ignore
+  !params && (params = []);
+
   const normalizedOptions = normalizeOptions<R>(options);
 
   const [currentParams, setCurrentParams] = useState<Args | null>(null);
