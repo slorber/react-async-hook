@@ -22,6 +22,9 @@ Don't expect it to grow in size, it is **feature complete**:
 - Can mutate state after fetch
 - Returned callbacks are stable
 
+
+ 
+
 ## Small size
 
 - Way smaller than popular alternatives
@@ -36,6 +39,16 @@ Don't expect it to grow in size, it is **feature complete**:
 | **React-Async**      | [![](https://img.shields.io/bundlephobia/min/react-async.svg)](https://bundlephobia.com/package/react-async)           | [![](https://img.shields.io/bundlephobia/minzip/react-async.svg)](https://bundlephobia.com/package/react-async)           |
 | **Use-HTTP**         | [![](https://img.shields.io/bundlephobia/min/use-http.svg)](https://bundlephobia.com/package/use-http)                 | [![](https://img.shields.io/bundlephobia/minzip/use-http.svg)](https://bundlephobia.com/package/use-http)                 |
 | **Rest-Hooks**       | [![](https://img.shields.io/bundlephobia/min/rest-hooks.svg)](https://bundlephobia.com/package/rest-hooks)             | [![](https://img.shields.io/bundlephobia/minzip/rest-hooks.svg)](https://bundlephobia.com/package/rest-hooks)             |
+
+--- 
+
+# Sponsor
+
+**[ThisWeekInReact.com](https://thisweekinreact.com)**: the best newsletter to stay up-to-date with the React ecosystem:
+
+[![ThisWeekInReact.com banner](https://user-images.githubusercontent.com/749374/136185889-ebdb67cd-ec78-4655-b88b-79a6c134acd2.png)](https://thisweekinreact.com)
+
+---
 
 ## Things we don't support (by design):
 
