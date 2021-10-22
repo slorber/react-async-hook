@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -238,9 +239,12 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
 
   const normalizedOptions = normalizeOptions<R>(options);
 
+  // Use memoization to produce a stable options object post-normalization.
+  const memoizedOptions = useMemo(normalizedOptions, Object.values(normalizedOptions));
+
   const [currentParams, setCurrentParams] = useState<Args | null>(null);
 
-  const AsyncState = useAsyncState<R>(normalizedOptions);
+  const AsyncState = useAsyncState<R>(memoizedOptions);
 
   const isMounted = useIsMounted();
   const CurrentPromise = useCurrentPromise<R>();
@@ -263,7 +267,7 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
         if (shouldHandlePromise(promise)) {
           AsyncState.setResult(result);
         }
-        normalizedOptions.onSuccess(result, {
+        memoizedOptions.onSuccess(result, {
           isCurrent: () => CurrentPromise.is(promise),
         });
       },
@@ -271,7 +275,7 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
         if (shouldHandlePromise(promise)) {
           AsyncState.setError(error);
         }
-        normalizedOptions.onError(error, {
+        memoizedOptions.onError(error, {
           isCurrent: () => CurrentPromise.is(promise),
         });
       }
@@ -291,8 +295,8 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
   const isMounting = !isMounted();
   useEffect(() => {
     const execute = () => getLatestExecuteAsyncOperation()(...params);
-    isMounting && normalizedOptions.executeOnMount && execute();
-    !isMounting && normalizedOptions.executeOnUpdate && execute();
+    isMounting && memoizedOptions.executeOnMount && execute();
+    !isMounting && memoizedOptions.executeOnUpdate && execute();
   }, params);
 
   return {
