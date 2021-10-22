@@ -240,7 +240,7 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
   const normalizedOptions = normalizeOptions<R>(options);
 
   // Use memoization to produce a stable options object post-normalization.
-  const memoizedOptions = useMemo(normalizedOptions, Object.values(normalizedOptions));
+  const memoizedOptions = useMemo(() => normalizedOptions, Object.values(normalizedOptions));
 
   const [currentParams, setCurrentParams] = useState<Args | null>(null);
 
