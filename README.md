@@ -263,7 +263,7 @@ const SearchStarwarsHeroExample = () => {
 You can use the `useAsyncAbortable` alternative. The async function provided will receive `(abortSignal, ...params)` .
 
 The library will take care of triggering the abort signal whenever a new async call is made so that only the last request is not cancelled.
-It is your responsability to wire the abort signal appropriately.
+It is your responsibility to wire the abort signal appropriately.
 
 ```tsx
 const StarwarsHero = ({ id }) => {
