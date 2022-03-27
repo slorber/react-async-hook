@@ -43,12 +43,31 @@ export type AsyncStateStatus =
   | 'success'
   | 'error';
 
-export type AsyncState<R> = {
-  status: AsyncStateStatus;
-  loading: boolean;
-  error: Error | undefined;
-  result: R | undefined;
-};
+export declare type AsyncState<R> =
+  | {
+      status: 'not-requested';
+      loading: false;
+      result: undefined;
+      error: undefined;
+    }
+  | {
+      status: 'loading';
+      loading: true;
+      error: undefined;
+      result: undefined;
+    }
+  | {
+      status: 'success';
+      loading: false;
+      error: undefined;
+      result: R;
+    }
+  | {
+      status: 'error';
+      loading: false;
+      error: Error;
+      result: undefined;
+    };
 type SetLoading<R> = (asyncState: AsyncState<R>) => AsyncState<R>;
 type SetResult<R> = (result: R, asyncState: AsyncState<R>) => AsyncState<R>;
 type SetError<R> = (error: Error, asyncState: AsyncState<R>) => AsyncState<R>;
@@ -135,7 +154,6 @@ const normalizeOptions = <R>(
 type UseAsyncStateResult<R> = {
   value: AsyncState<R>;
   set: Dispatch<SetStateAction<AsyncState<R>>>;
-  merge: (value: Partial<AsyncState<R>>) => void;
   reset: () => void;
   setLoading: () => void;
   setResult: (r: R) => void;
@@ -167,19 +185,9 @@ const useAsyncState = <R extends {}>(
     [value, setValue]
   );
 
-  const merge = useCallback(
-    (state: Partial<AsyncState<R>>) =>
-      setValue({
-        ...value,
-        ...state,
-      }),
-    [value, setValue]
-  );
-
   return {
     value,
     set: setValue,
-    merge,
     reset,
     setLoading,
     setResult,
@@ -217,7 +225,6 @@ export type UseAsyncReturn<
   Args extends any[] = UnknownArgs
 > = AsyncState<R> & {
   set: (value: AsyncState<R>) => void;
-  merge: (value: Partial<AsyncState<R>>) => void;
   reset: () => void;
   execute: (...args: Args) => Promise<R>;
   currentPromise: Promise<R> | null;
@@ -298,7 +305,6 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
   return {
     ...AsyncState.value,
     set: AsyncState.set,
-    merge: AsyncState.merge,
     reset: AsyncState.reset,
     execute: executeAsyncOperationMemo,
     currentPromise: CurrentPromise.get(),
