@@ -263,7 +263,7 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
         if (shouldHandlePromise(promise)) {
           AsyncState.setResult(result);
         }
-        normalizedOptions.onSuccess(result, {
+        normalizedOptions.onSuccess?.(result, {
           isCurrent: () => CurrentPromise.is(promise),
         });
       },
@@ -271,7 +271,7 @@ const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
         if (shouldHandlePromise(promise)) {
           AsyncState.setError(error);
         }
-        normalizedOptions.onError(error, {
+        normalizedOptions.onError?.(error, {
           isCurrent: () => CurrentPromise.is(promise),
         });
       }
