@@ -153,28 +153,18 @@ const useAsyncState = <R extends {}>(
     options,
   ]);
 
-  const setLoading = useCallback(() => setValue(options.setLoading(value)), [
-    value,
-    setValue,
-  ]);
-  const setResult = useCallback(
-    (result: R) => setValue(options.setResult(result, value)),
-    [value, setValue]
-  );
+  const setLoading = () => setValue(value => options.setLoading(value));
+  const setResult = (result: R) =>
+    setValue(value => options.setResult(result, value));
 
-  const setError = useCallback(
-    (error: Error) => setValue(options.setError(error, value)),
-    [value, setValue]
-  );
+  const setError = (error: Error) =>
+    setValue(value => options.setError(error, value));
 
-  const merge = useCallback(
-    (state: Partial<AsyncState<R>>) =>
-      setValue({
-        ...value,
-        ...state,
-      }),
-    [value, setValue]
-  );
+  const merge = (state: Partial<AsyncState<R>>) =>
+    setValue(value => ({
+      ...value,
+      ...state,
+    }));
 
   return {
     value,
