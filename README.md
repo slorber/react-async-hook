@@ -310,7 +310,7 @@ If your params are not changing, yet you need to refresh the data, you can call 
 const StarwarsHero = ({ id }) => {
   const asyncHero = useAsync(fetchStarwarsHero, [id]);
 
-  return <div onClick={() => asyncHero.execute()}>...</div>;
+  return <div onClick={() => asyncHero.execute(id)}>...</div>;
 };
 ```
 
