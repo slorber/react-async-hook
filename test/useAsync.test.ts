@@ -1,7 +1,25 @@
-import { useAsync } from '../src';
+import { useAsync, useAsyncAbortable } from '../src';
 import { renderHook } from '@testing-library/react-hooks';
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number, signal?: AbortSignal) =>
+  new Promise((resolve, reject) => {
+    if (signal && signal.aborted) reject();
+
+    const timeout = setTimeout(() => {
+      resolve(undefined);
+
+      if (signal) signal.removeEventListener('abort', abort);
+    }, ms);
+
+    const abort = () => {
+      if (signal) {
+        clearTimeout(timeout);
+        reject();
+      }
+    };
+
+    if (signal) signal.addEventListener('abort', abort);
+  });
 
 interface StarwarsHero {
   name: string;
@@ -264,6 +282,39 @@ describe('useAync', () => {
 
     expect(result.current.error).toBeDefined();
     expect(result.current.error!.message).toBe('something went wrong');
+    expect(result.current.loading).toBe(false);
+    expect(result.current.result).toBeUndefined();
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalled();
+  });
+
+  it('should handle cancel', async () => {
+    const onSuccess = jest.fn();
+    const onError = jest.fn();
+    const onAbort = jest.fn();
+
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useAsyncAbortable(
+        async (signal: AbortSignal) => {
+          signal.addEventListener('abort', onAbort);
+          await sleep(10000, signal);
+          return fakeResults;
+        },
+        [],
+        {
+          onSuccess: () => onSuccess(),
+          onError: () => onError(),
+        }
+      )
+    );
+
+    await sleep(10);
+    expect(result.current.loading).toBe(true);
+    result.current.cancel();
+    await waitForNextUpdate();
+
+    expect(onAbort).toHaveBeenCalled();
+    expect(result.current.error).toBeUndefined();
     expect(result.current.loading).toBe(false);
     expect(result.current.result).toBeUndefined();
     expect(onSuccess).not.toHaveBeenCalled();

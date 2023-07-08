@@ -224,6 +224,13 @@ export type UseAsyncReturn<
   currentParams: Args | null;
 };
 
+export type UseAsyncAbortableReturn<
+  R = UnknownResult,
+  Args extends any[] = UnknownArgs
+> = UseAsyncReturn<R, Args> & {
+  cancel: () => void;
+};
+
 // Relaxed interface which accept both async and sync functions
 // Accepting sync function is convenient for useAsyncCallback
 const useAsyncInternal = <R = UnknownResult, Args extends any[] = UnknownArgs>(
@@ -327,9 +334,9 @@ export function useAsync<R = UnknownResult, Args extends any[] = UnknownArgs>(
   return useAsyncInternal(asyncFunction, params, options);
 }
 
-type AddArg<H, T extends any[]> = ((h: H, ...t: T) => void) extends ((
+type AddArg<H, T extends any[]> = ((h: H, ...t: T) => void) extends (
   ...r: infer R
-) => void)
+) => void
   ? R
   : never;
 
@@ -340,17 +347,22 @@ export const useAsyncAbortable = <
   asyncFunction: (...args: AddArg<AbortSignal, Args>) => Promise<R>,
   params: Args,
   options?: UseAsyncOptions<R>
-): UseAsyncReturn<R, Args> => {
+): UseAsyncAbortableReturn<R, Args> => {
   const abortControllerRef = useRef<AbortController>();
+
+  const abortHandler = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  };
 
   // Wrap the original async function and enhance it with abortion login
   const asyncFunctionWrapper: (...args: Args) => Promise<R> = async (
     ...p: Args
   ) => {
     // Cancel previous async call
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
+    abortHandler();
+
     // Create/store new abort controller for next async call
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
@@ -367,7 +379,10 @@ export const useAsyncAbortable = <
     }
   };
 
-  return useAsync(asyncFunctionWrapper, params, options);
+  return {
+    ...useAsync(asyncFunctionWrapper, params, options),
+    cancel: () => abortHandler(),
+  };
 };
 
 // keep compat with TS < 3.5
